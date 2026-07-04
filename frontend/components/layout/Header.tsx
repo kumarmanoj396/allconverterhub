@@ -1,21 +1,42 @@
+"use client";
+import Link from "next/link";
+import { Menu } from "lucide-react";
+import { APP } from "@/lib/constants";
+import { NAVIGATION } from "@/lib/navigation";
+
 export default function Header() {
   return (
-    <header className="border-b bg-white">
-      <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
-        <h1 className="text-2xl font-bold text-blue-600">
-          AllConverterHub
-        </h1>
+    <header className="sticky top-0 z-50 border-b border-gray-200 bg-white/90 backdrop-blur">
+      <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-6">
+        <Link href="/" className="text-2xl font-bold text-blue-600">
+          {APP.NAME}
+        </Link>
 
-        <nav className="hidden gap-8 md:flex">
-          <a href="#" className="hover:text-blue-600">Home</a>
-          <a href="#" className="hover:text-blue-600">Tools</a>
-          <a href="#" className="hover:text-blue-600">Categories</a>
-          <a href="#" className="hover:text-blue-600">Contact</a>
+        <nav className="hidden items-center gap-8 md:flex">
+          {NAVIGATION.map((item) => (
+            <Link
+              key={item.title}
+              href={item.href}
+              className="text-gray-600 transition hover:text-blue-600"
+            >
+              {item.title}
+            </Link>
+          ))}
         </nav>
 
-        <button className="rounded-lg bg-blue-600 px-4 py-2 text-white hover:bg-blue-700">
-          Login
-        </button>
+        <div className="flex items-center gap-3">
+          <button className="hidden rounded-lg border px-4 py-2 md:block">
+            Login
+          </button>
+
+          <button className="rounded-lg bg-blue-600 px-4 py-2 text-white">
+            Sign Up
+          </button>
+
+          <button className="md:hidden">
+            <Menu />
+          </button>
+        </div>
       </div>
     </header>
   );
