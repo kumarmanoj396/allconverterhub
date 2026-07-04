@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Menu } from "lucide-react";
 import { APP } from "@/lib/constants";
 import { NAVIGATION } from "@/lib/navigation";
+import { Button } from "@/components/ui/Button";
 
 export default function Header() {
   return (
@@ -29,9 +30,7 @@ export default function Header() {
             Login
           </button>
 
-          <button className="rounded-lg bg-blue-600 px-4 py-2 text-white">
-            Sign Up
-          </button>
+          <Button>Sign Up</Button>
 
           <button className="md:hidden">
             <Menu />
