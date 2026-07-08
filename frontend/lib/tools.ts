@@ -13,18 +13,4 @@ export const featuredTools = [
     icon: "📄",
     badge: "Top",
   },
-  {
-    id: "qr-generator",
-    title: "QR Generator",
-    description: "Generate QR Codes for URLs & Text.",
-    icon: "🔳",
-    badge: "Free",
-  },
-  {
-    id: "emi-calculator",
-    title: "EMI Calculator",
-    description: "Calculate loan EMI instantly.",
-    icon: "🧮",
-    badge: "New",
-  },
 ];

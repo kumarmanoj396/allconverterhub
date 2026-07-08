@@ -15,12 +15,13 @@ export default function FeaturedTools() {
         <div className="mt-16 grid gap-8 md:grid-cols-2 lg:grid-cols-4">
           {featuredTools.map((tool) => (
             <ToolCard
-              key={tool.id}
-              icon={tool.icon}
-              title={tool.title}
-              description={tool.description}
-              badge={tool.badge}
-            />
+  key={tool.id}
+  id={tool.id}
+  icon={tool.icon}
+  title={tool.title}
+  description={tool.description}
+  badge={tool.badge}
+/>
           ))}
         </div>
       </div>
