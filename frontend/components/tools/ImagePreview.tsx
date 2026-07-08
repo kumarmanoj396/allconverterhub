@@ -1,53 +1,56 @@
 "use client";
 
-type ImagePreviewProps = {
-  file: File | null;
-  preview: string | null;
-  width: number;
-  height: number;
-};
+import { useEffect, useState } from "react";
+import Card from "@/components/ui/Card";
+import SectionTitle from "@/components/ui/SectionTitle";
 
 export default function ImagePreview({
   file,
-  preview,
-  width,
-  height,
-}: ImagePreviewProps) {
-  if (!file || !preview) return null;
+}: {
+  file: File | null;
+}) {
+  const [preview, setPreview] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!file) {
+      setPreview(null);
+      return;
+    }
+
+    const url = URL.createObjectURL(file);
+    setPreview(url);
+
+    return () => URL.revokeObjectURL(url);
+  }, [file]);
+
+  if (!file || !preview) {
+    return null;
+  }
 
   return (
-    <div className="mt-8 rounded-xl border border-slate-700 bg-slate-900 p-6">
-      <h2 className="mb-4 text-2xl font-bold">
-        Image Preview
-      </h2>
+    <Card className="mt-8">
+      <SectionTitle
+        title="Image Preview"
+        subtitle="Preview your selected image"
+      />
 
       <img
         src={preview}
         alt="Preview"
-        className="mx-auto max-h-96 rounded-lg"
+        className="mx-auto max-h-96 rounded-xl"
       />
 
-      <div className="mt-6 grid grid-cols-2 gap-4 text-slate-300">
+      <div className="mt-6 grid grid-cols-2 gap-4 text-sm">
         <div>
-          <span className="font-semibold">File Name</span>
+          <strong>File Name</strong>
           <p>{file.name}</p>
         </div>
 
         <div>
-          <span className="font-semibold">File Size</span>
+          <strong>File Size</strong>
           <p>{(file.size / 1024 / 1024).toFixed(2)} MB</p>
         </div>
-
-        <div>
-          <span className="font-semibold">Width</span>
-          <p>{width}px</p>
-        </div>
-
-        <div>
-          <span className="font-semibold">Height</span>
-          <p>{height}px</p>
-        </div>
       </div>
-    </div>
+    </Card>
   );
 }

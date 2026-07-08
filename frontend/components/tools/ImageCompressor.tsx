@@ -1,23 +1,17 @@
 "use client";
 
+import { useState } from "react";
 import ToolLayout from "./ToolLayout";
 import UploadBox from "./UploadBox";
+import ImagePreview from "./ImagePreview";
+import type { Tool } from "@/types/tool";
 
-type Tool = {
-  id: string;
-  title: string;
-  description: string;
-  icon: string;
-};
-
-type Props = {
+export default function ImageCompressor({
+  tool,
+}: {
   tool: Tool;
-};
-
-export default function ImageCompressor({ tool }: Props) {
-  function handleFile(file: File) {
-    console.log("Selected File:", file);
-  }
+}) {
+  const [file, setFile] = useState<File | null>(null);
 
   return (
     <ToolLayout
@@ -25,7 +19,13 @@ export default function ImageCompressor({ tool }: Props) {
       description={tool.description}
       icon={tool.icon}
     >
-      <UploadBox onFileSelect={handleFile} />
+      <UploadBox
+        onFileSelect={(selectedFile) => {
+          setFile(selectedFile);
+        }}
+      />
+
+      <ImagePreview file={file} />
     </ToolLayout>
   );
 }
