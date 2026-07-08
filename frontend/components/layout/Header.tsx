@@ -3,7 +3,7 @@ import Link from "next/link";
 import { Menu } from "lucide-react";
 import { APP } from "@/lib/constants";
 import { NAVIGATION } from "@/lib/navigation";
-import { Button } from "@/components/ui/Button";
+import Button from "@/components/ui/Button";
 
 export default function Header() {
   return (
