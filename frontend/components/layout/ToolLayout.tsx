@@ -1,35 +1,29 @@
 import { ReactNode } from "react";
 
-type ToolLayoutProps = {
+interface ToolLayoutProps {
   title: string;
   description: string;
-  icon: string;
   children: ReactNode;
-};
+}
 
 export default function ToolLayout({
   title,
   description,
-  icon,
   children,
 }: ToolLayoutProps) {
   return (
-    <main className="min-h-screen bg-slate-950 text-white">
-      <div className="mx-auto max-w-5xl px-6 py-12">
-        <div className="mb-8">
-          <div className="text-5xl">{icon}</div>
+    <main className="mx-auto max-w-7xl px-4 py-10">
+      <div className="mb-10">
+        <h1 className="text-4xl font-bold tracking-tight">
+          {title}
+        </h1>
 
-          <h1 className="mt-4 text-4xl font-bold">
-            {title}
-          </h1>
-
-          <p className="mt-3 text-slate-400">
-            {description}
-          </p>
-        </div>
-
-        {children}
+        <p className="mt-3 max-w-3xl text-gray-600 dark:text-gray-400">
+          {description}
+        </p>
       </div>
+
+      {children}
     </main>
   );
 }
