@@ -4,10 +4,14 @@ import { useRef, useState } from "react";
 import { Upload, ImageIcon, X } from "lucide-react";
 
 type UploadBoxProps = {
+  file: File | null;
   onFileSelect: (file: File) => void;
 };
 
-export default function UploadBox({ onFileSelect }: UploadBoxProps) {
+export default function UploadBox({
+  file,
+  onFileSelect,
+}: UploadBoxProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [fileName, setFileName] = useState("");
 
@@ -64,11 +68,11 @@ export default function UploadBox({ onFileSelect }: UploadBoxProps) {
         Choose Image
       </button>
 
-      {fileName && (
+      {file && (
         <div className="mt-8 flex items-center justify-center gap-3 rounded-xl bg-slate-800 p-4">
           <ImageIcon className="h-5 w-5 text-green-500" />
 
-          <span>{fileName}</span>
+          <span>{file.name}</span>
 
           <button
             onClick={() => {
