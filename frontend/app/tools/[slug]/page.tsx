@@ -1,5 +1,5 @@
 import { featuredTools } from "@/lib/tools";
-import ImageCompressor from "@/components/tools/ImageCompressor";
+import ImageCompressor from "@/components/tools/image-compressor/ImageCompressor";
 import { notFound } from "next/navigation";
 
 type Props = {
