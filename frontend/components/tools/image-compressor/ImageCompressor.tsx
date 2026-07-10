@@ -1,42 +1,37 @@
 "use client";
 
 import { useState } from "react";
+
 import UploadBox from "./UploadBox";
+import ImagePreview from "./ImagePreview";
 
 export default function ImageCompressor() {
   const [file, setFile] = useState<File | null>(null);
 
   return (
-    <div className="mx-auto max-w-5xl space-y-8">
+  <div className="space-y-8">
+    {!file ? (
       <UploadBox
         file={file}
         onFileSelect={setFile}
       />
-
-      {file && (
-        <div className="rounded-2xl border border-slate-700 bg-slate-900 p-6">
-          <h2 className="mb-4 text-xl font-semibold">
-            Selected Image
-          </h2>
-
-          <div className="space-y-2 text-sm">
-            <p>
-              <span className="font-medium">Name:</span>{" "}
-              {file.name}
-            </p>
-
-            <p>
-              <span className="font-medium">Type:</span>{" "}
-              {file.type}
-            </p>
-
-            <p>
-              <span className="font-medium">Size:</span>{" "}
-              {(file.size / 1024 / 1024).toFixed(2)} MB
-            </p>
-          </div>
+    ) : (
+      <div className="grid gap-8 lg:grid-cols-3">
+        <div className="lg:col-span-2">
+          <ImagePreview file={file} />
         </div>
-      )}
-    </div>
-  );
+
+        <div className="rounded-2xl border border-slate-700 bg-slate-900 p-6">
+          <h3 className="text-xl font-semibold">
+            Compression Settings
+          </h3>
+
+          <p className="mt-2 text-slate-400">
+            Coming in the next step...
+          </p>
+        </div>
+      </div>
+    )}
+  </div>
+);
 }
