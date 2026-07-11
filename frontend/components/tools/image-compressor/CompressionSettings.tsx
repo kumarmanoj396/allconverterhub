@@ -1,32 +1,32 @@
 "use client";
 
+import type { OutputFormat } from "@/hooks/useImageCompression";
+
 interface CompressionSettingsProps {
   quality: number;
-  format: "image/jpeg" | "image/png" | "image/webp";
-  loading: boolean;
+  format: OutputFormat;
+  isCompressing: boolean;
+  progress: number;
   onQualityChange: (value: number) => void;
-  onFormatChange: (
-    value: "image/jpeg" | "image/png" | "image/webp"
-  ) => void;
+  onFormatChange: (value: OutputFormat) => void;
   onCompress: () => void;
 }
 
 export default function CompressionSettings({
   quality,
   format,
-  loading,
+  isCompressing,
+  progress,
   onQualityChange,
   onFormatChange,
   onCompress,
 }: CompressionSettingsProps) {
   return (
     <div className="rounded-2xl border border-slate-700 bg-slate-900 p-6">
-      <h2 className="text-2xl font-bold">
-        Compression Settings
-      </h2>
+      <h2 className="text-2xl font-bold">Compression settings</h2>
 
       <p className="mt-2 text-sm text-slate-400">
-        Adjust the quality and output format before compressing your image.
+        Choose an output format and quality. Your image stays on this device.
       </p>
 
       <div className="mt-8">
@@ -44,8 +44,8 @@ export default function CompressionSettings({
           max={100}
           step={5}
           value={quality}
-          onChange={(e) =>
-            onQualityChange(Number(e.target.value))
+          onChange={(event) =>
+            onQualityChange(Number(event.target.value))
           }
           className="w-full cursor-pointer"
         />
@@ -62,13 +62,8 @@ export default function CompressionSettings({
         <select
           id="output-format"
           value={format}
-          onChange={(e) =>
-            onFormatChange(
-              e.target.value as
-                | "image/jpeg"
-                | "image/png"
-                | "image/webp"
-            )
+          onChange={(event) =>
+            onFormatChange(event.target.value as OutputFormat)
           }
           className="w-full rounded-xl border border-slate-700 bg-slate-800 p-3 outline-none focus:border-blue-500"
         >
@@ -80,11 +75,24 @@ export default function CompressionSettings({
 
       <button
         onClick={onCompress}
-        disabled={loading}
+        disabled={isCompressing}
         className="mt-10 w-full rounded-xl bg-blue-600 py-3 font-semibold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
       >
-        {loading ? "Compressing..." : "Compress Image"}
+        {isCompressing ? `Compressing… ${progress}%` : "Compress image"}
       </button>
+      {isCompressing && (
+        <div className="mt-4" aria-live="polite">
+          <div className="h-2 overflow-hidden rounded-full bg-slate-700">
+            <div
+              className="h-full rounded-full bg-blue-500 transition-all"
+              style={{ width: `${progress}%` }}
+            />
+          </div>
+          <p className="mt-2 text-sm text-slate-400">
+            Preparing your download…
+          </p>
+        </div>
+      )}
     </div>
   );
 }

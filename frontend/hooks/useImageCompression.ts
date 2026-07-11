@@ -1,60 +1,112 @@
 "use client";
 
 import imageCompression from "browser-image-compression";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 
-export interface CompressionData {
-  originalFile: File;
-  compressedFile: File;
-  originalSize: number;
-  compressedSize: number;
-  savedPercentage: number;
+export type OutputFormat = "image/jpeg" | "image/png" | "image/webp";
+
+export interface ImageDimensions {
+  width: number;
+  height: number;
 }
 
-export default function useImageCompression() {
-  const [loading, setLoading] = useState(false);
+export interface CompressionResult {
+  file: File;
+  sizeSaved: number;
+  savingsPercentage: number;
+}
 
+const BYTES_PER_MEGABYTE = 1024 * 1024;
+
+function outputFilename(fileName: string, format: OutputFormat) {
+  const extension = format.split("/")[1];
+  const basename = fileName.replace(/\.[^/.]+$/, "") || "compressed-image";
+
+  return `${basename}-compressed.${extension}`;
+}
+
+function errorMessage(error: unknown) {
+  return error instanceof Error
+    ? error.message
+    : "We couldn't compress this image. Please try another file.";
+}
+
+export function useImageCompression() {
+  const [file, setFile] = useState<File | null>(null);
+  const [quality, setQuality] = useState(80);
+  const [format, setFormat] = useState<OutputFormat>("image/jpeg");
   const [progress, setProgress] = useState(0);
+  const [result, setResult] = useState<CompressionResult | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [isCompressing, setIsCompressing] = useState(false);
 
-  async function compress(
-    file: File,
-    quality: number,
-    format: "image/jpeg" | "image/png" | "image/webp"
-  ) {
-    setLoading(true);
+  const replaceImage = useCallback((nextFile: File) => {
+    setFile(nextFile);
+    setResult(null);
+    setError(null);
+    setProgress(0);
+  }, []);
 
+  const clearImage = useCallback(() => {
+    setFile(null);
+    setResult(null);
+    setError(null);
+    setProgress(0);
+  }, []);
+
+  const compress = useCallback(async () => {
+    if (!file || isCompressing) {
+      return;
+    }
+
+    setIsCompressing(true);
+    setError(null);
+    setResult(null);
     setProgress(0);
 
     try {
       const compressed = await imageCompression(file, {
-        maxSizeMB: 10,
+        maxSizeMB: Math.max(0.1, (file.size / BYTES_PER_MEGABYTE) * (quality / 100)),
         maxWidthOrHeight: 4096,
-        useWebWorker: true,
-        initialQuality: quality / 100,
+        alwaysKeepResolution: true,
         fileType: format,
-        onProgress: setProgress,
+        initialQuality: quality / 100,
+        onProgress: (value) => setProgress(Math.round(value)),
+        useWebWorker: true,
       });
+      const compressedFile = new File(
+        [compressed],
+        outputFilename(file.name, format),
+        { type: format, lastModified: Date.now() },
+      );
+      const sizeSaved = file.size - compressedFile.size;
 
-      return {
-        originalFile: file,
-        compressedFile: compressed,
-        originalSize: file.size,
-        compressedSize: compressed.size,
-        savedPercentage: Number(
-          (
-            ((file.size - compressed.size) / file.size) *
-            100
-          ).toFixed(1)
-        ),
-      } satisfies CompressionData;
+      setResult({
+        file: compressedFile,
+        sizeSaved,
+        savingsPercentage: Math.max(0, (sizeSaved / file.size) * 100),
+      });
+      setProgress(100);
+    } catch (compressionError: unknown) {
+      setError(errorMessage(compressionError));
+      setProgress(0);
     } finally {
-      setLoading(false);
+      setIsCompressing(false);
     }
-  }
+  }, [file, format, isCompressing, quality]);
 
   return {
-    loading,
-    progress,
+    clearImage,
     compress,
+    error,
+    file,
+    format,
+    isCompressing,
+    progress,
+    quality,
+    replaceImage,
+    result,
+    setFormat,
+    setQuality,
   };
 }

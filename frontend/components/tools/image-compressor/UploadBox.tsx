@@ -1,70 +1,114 @@
 "use client";
 
-import { Upload } from "lucide-react";
+import { useRef, useState } from "react";
+import { ImageIcon } from "lucide-react";
 
 interface UploadBoxProps {
   onFileSelect: (file: File) => void;
 }
 
+const MAX_FILE_SIZE = 10 * 1024 * 1024;
+const SUPPORTED_TYPES = ["image/jpeg", "image/png", "image/webp"];
+
 export default function UploadBox({
   onFileSelect,
 }: UploadBoxProps) {
-  function handleChange(
-    event: React.ChangeEvent<HTMLInputElement>
-  ) {
-    const selectedFile = event.target.files?.[0];
+  const inputRef = useRef<HTMLInputElement>(null);
 
-    if (!selectedFile) {
-      return;
+  const [isDragging, setIsDragging] = useState(false);
+  const [error, setError] = useState("");
+
+  function validateFile(file: File) {
+    if (!SUPPORTED_TYPES.includes(file.type)) {
+      setError("Choose a JPG, PNG, or WEBP image.");
+      return false;
     }
 
-    // Allow only image files
-    if (!selectedFile.type.startsWith("image/")) {
-      alert("Please select a valid image file.");
-      return;
+    if (file.size > MAX_FILE_SIZE) {
+      setError("Maximum file size is 10 MB.");
+      return false;
     }
 
-    // Max 10 MB
-    if (selectedFile.size > 10 * 1024 * 1024) {
-      alert("Maximum file size is 10 MB.");
-      return;
-    }
+    setError("");
+    return true;
+  }
 
-    onFileSelect(selectedFile);
+  function selectFile(file: File) {
+    if (!validateFile(file)) return;
+
+    onFileSelect(file);
+  }
+
+  function handleChange(event: React.ChangeEvent<HTMLInputElement>) {
+    const selected = event.target.files?.[0];
+
+    if (!selected) return;
+
+    selectFile(selected);
+  }
+
+  function handleDrop(event: React.DragEvent<HTMLDivElement>) {
+    event.preventDefault();
+
+    setIsDragging(false);
+
+    const selected = event.dataTransfer.files?.[0];
+
+    if (!selected) return;
+
+    selectFile(selected);
   }
 
   return (
-    <div className="mx-auto max-w-3xl">
-      <label
-        htmlFor="image-upload"
-        className="flex cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed border-slate-700 bg-slate-900 px-8 py-16 text-center transition hover:border-blue-500"
+    <div className="space-y-3">
+      <div
+        onClick={() => inputRef.current?.click()}
+        onDragOver={(event) => {
+          event.preventDefault();
+          setIsDragging(true);
+        }}
+        onDragLeave={() => setIsDragging(false)}
+        onDrop={handleDrop}
+        className={`cursor-pointer rounded-2xl border-2 border-dashed p-8 text-center transition-all sm:p-12
+        ${
+          isDragging
+            ? "border-blue-500 bg-blue-50 dark:bg-slate-800"
+            : "border-slate-300 dark:border-slate-700"
+        }`}
       >
-        <Upload className="mb-6 h-16 w-16 text-blue-500" />
+        <ImageIcon className="mx-auto mb-4 h-14 w-14 text-blue-600" />
 
-        <h2 className="text-3xl font-bold text-white">
+        <h2 className="text-2xl font-bold">
           Upload Image
         </h2>
 
-        <p className="mt-3 text-slate-400">
-          Drag & Drop is coming soon
+        <p className="mt-2 text-slate-500">
+          Drag and drop an image here, or click to browse.
         </p>
 
-        <p className="mt-1 text-sm text-slate-500">
-          JPG, JPEG, PNG and WEBP (Max 10 MB)
-        </p>
+        <p className="mt-1 text-sm text-slate-500">JPG, PNG, or WEBP up to 10 MB</p>
 
-        <div className="mt-8 rounded-xl bg-blue-600 px-8 py-3 font-semibold text-white transition hover:bg-blue-700">
+        <button
+          type="button"
+          onClick={(event) => {
+            event.stopPropagation();
+            inputRef.current?.click();
+          }}
+          className="mt-5 rounded-xl bg-blue-600 px-6 py-3 font-semibold text-white hover:bg-blue-700"
+        >
           Choose Image
-        </div>
-      </label>
+        </button>
 
-      <input
-        id="image-upload"
-        type="file"
-        accept="image/jpeg,image/png,image/webp"
-        className="hidden"
-        onChange={handleChange}
-      />
+        <input
+          ref={inputRef}
+          hidden
+          type="file"
+          accept="image/jpeg,image/png,image/webp"
+          onChange={handleChange}
+        />
+      </div>
+
+      {error && <p className="text-sm text-red-600">{error}</p>}
     </div>
   );
 }

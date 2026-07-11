@@ -1,48 +1,58 @@
 "use client";
 
-import { useState } from "react";
-
 import UploadBox from "./UploadBox";
 import ImagePreview from "./ImagePreview";
 import CompressionSettings from "./CompressionSettings";
+import CompressionResult from "./CompressionResult";
+import { useImageCompression } from "@/hooks/useImageCompression";
 
 export default function ImageCompressor() {
-  const [file, setFile] = useState<File | null>(null);
-
-  const [quality, setQuality] = useState(80);
-
-  const [format, setFormat] = useState<
-    "image/jpeg" | "image/png" | "image/webp"
-  >("image/jpeg");
-
-  function handleCompress() {
-    console.log("Compress", {
-      file,
-      quality,
-      format,
-    });
-  }
+  const {
+    clearImage,
+    compress,
+    error,
+    file,
+    format,
+    isCompressing,
+    progress,
+    quality,
+    replaceImage,
+    result,
+    setFormat,
+    setQuality,
+  } = useImageCompression();
 
   return (
     <div className="space-y-8">
       {!file ? (
-        <UploadBox
-          onFileSelect={setFile}
-        />
+        <UploadBox onFileSelect={replaceImage} />
       ) : (
-        <div className="grid gap-8 lg:grid-cols-3">
-          <div className="lg:col-span-2">
-            <ImagePreview file={file} />
-          </div>
+        <div className="space-y-8">
+          <div className="grid gap-8 lg:grid-cols-3">
+            <div className="lg:col-span-2">
+              <ImagePreview file={file} />
+            </div>
 
-          <CompressionSettings
-            quality={quality}
-            format={format}
-            loading={false}
-            onQualityChange={setQuality}
-            onFormatChange={setFormat}
-            onCompress={handleCompress}
-          />
+            <CompressionSettings
+              quality={quality}
+              format={format}
+              isCompressing={isCompressing}
+              progress={progress}
+              onQualityChange={setQuality}
+              onFormatChange={setFormat}
+              onCompress={compress}
+            />
+          </div>
+          {error && (
+            <p className="text-sm font-medium text-red-600">{error}</p>
+          )}
+          {result && (
+            <CompressionResult
+              originalFile={file}
+              result={result}
+              onReplace={clearImage}
+            />
+          )}
         </div>
       )}
     </div>

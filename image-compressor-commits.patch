@@ -1,0 +1,904 @@
+From ef5c9acaa7f529a620d98e8d5e446a1d0813a915 Mon Sep 17 00:00:00 2001
+From: manojbehera <kumarmanoj396@gmail.com>
+Date: Sun, 12 Jul 2026 02:31:27 +0530
+Subject: [PATCH 1/2] feat(image-compressor): rebuild production image
+ compressor
+
+---
+ frontend/app/tools/[slug]/page.tsx            |   4 +-
+ .../tools/image-compressor/CompressButton.tsx |   0
+ .../tools/image-compressor/CompressResult.tsx |   0
+ .../image-compressor/CompressionResult.tsx    |  71 +++++++++++
+ .../image-compressor/CompressionSettings.tsx  |  52 ++++----
+ .../tools/image-compressor/DownloadCard.tsx   |   0
+ .../image-compressor/ImageCompressor.tsx      |  90 +++++++-------
+ .../tools/image-compressor/ImagePreview.tsx   |  41 ++++---
+ .../tools/image-compressor/UploadBox.tsx      |  70 +++++------
+ frontend/hooks/useImageCompression.ts         | 112 ++++++++++++++++++
+ frontend/package.json                         |   1 +
+ 11 files changed, 306 insertions(+), 135 deletions(-)
+ delete mode 100644 frontend/components/tools/image-compressor/CompressButton.tsx
+ delete mode 100644 frontend/components/tools/image-compressor/CompressResult.tsx
+ create mode 100644 frontend/components/tools/image-compressor/CompressionResult.tsx
+ delete mode 100644 frontend/components/tools/image-compressor/DownloadCard.tsx
+
+diff --git a/frontend/app/tools/[slug]/page.tsx b/frontend/app/tools/[slug]/page.tsx
+index 5e0157e..46e82c2 100644
+--- a/frontend/app/tools/[slug]/page.tsx
++++ b/frontend/app/tools/[slug]/page.tsx
+@@ -17,5 +17,5 @@ export default async function ToolPage({ params }: Props) {
+     notFound();
+   }
+ 
+-  return <ImageCompressor tool={tool} />;
+-}
+\ No newline at end of file
++  return <ImageCompressor />;
++}
+diff --git a/frontend/components/tools/image-compressor/CompressButton.tsx b/frontend/components/tools/image-compressor/CompressButton.tsx
+deleted file mode 100644
+index e69de29..0000000
+diff --git a/frontend/components/tools/image-compressor/CompressResult.tsx b/frontend/components/tools/image-compressor/CompressResult.tsx
+deleted file mode 100644
+index e69de29..0000000
+diff --git a/frontend/components/tools/image-compressor/CompressionResult.tsx b/frontend/components/tools/image-compressor/CompressionResult.tsx
+new file mode 100644
+index 0000000..dffce96
+--- /dev/null
++++ b/frontend/components/tools/image-compressor/CompressionResult.tsx
+@@ -0,0 +1,71 @@
++"use client";
++
++import { CheckCircle2, Download, RefreshCw } from "lucide-react";
++
++import type { CompressionResult as CompressionResultData } from "@/hooks/useImageCompression";
++
++interface CompressionResultProps {
++  originalFile: File;
++  result: CompressionResultData;
++  onReplace: () => void;
++}
++
++function formatFileSize(bytes: number) {
++  return bytes < 1024 * 1024
++    ? `${(bytes / 1024).toFixed(1)} KB`
++    : `${(bytes / (1024 * 1024)).toFixed(2)} MB`;
++}
++
++export default function CompressionResult({
++  originalFile,
++  result,
++  onReplace,
++}: CompressionResultProps) {
++  function download() {
++    const url = URL.createObjectURL(result.file);
++    const anchor = document.createElement("a");
++
++    anchor.href = url;
++    anchor.download = result.file.name;
++    document.body.appendChild(anchor);
++    anchor.click();
++    anchor.remove();
++    URL.revokeObjectURL(url);
++  }
++
++  return (
++    <section className="rounded-2xl border border-emerald-200 bg-emerald-50 p-6 shadow-sm dark:border-emerald-900 dark:bg-emerald-950/40">
++      <div className="flex items-start gap-3">
++        <CheckCircle2 className="mt-0.5 h-6 w-6 shrink-0 text-emerald-600" />
++        <div>
++          <h2 className="text-xl font-bold">Your image is ready</h2>
++          <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
++            You saved {formatFileSize(Math.max(0, result.sizeSaved))} ({result.savingsPercentage.toFixed(1)}%).
++          </p>
++        </div>
++      </div>
++
++      <dl className="mt-6 grid gap-3 text-sm sm:grid-cols-2">
++        <div className="rounded-xl bg-white/70 p-4 dark:bg-slate-900/60">
++          <dt className="text-slate-500">Original</dt>
++          <dd className="mt-1 font-semibold">{formatFileSize(originalFile.size)}</dd>
++        </div>
++        <div className="rounded-xl bg-white/70 p-4 dark:bg-slate-900/60">
++          <dt className="text-slate-500">Compressed</dt>
++          <dd className="mt-1 font-semibold">{formatFileSize(result.file.size)}</dd>
++        </div>
++      </dl>
++
++      <div className="mt-6 flex flex-col gap-3 sm:flex-row">
++        <button onClick={download} className="inline-flex flex-1 items-center justify-center gap-2 rounded-xl bg-emerald-600 px-5 py-3 font-semibold text-white transition hover:bg-emerald-700">
++          <Download className="h-5 w-5" />
++          Download image
++        </button>
++        <button onClick={onReplace} className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-300 px-5 py-3 font-semibold transition hover:bg-white dark:border-slate-700 dark:hover:bg-slate-800">
++          <RefreshCw className="h-5 w-5" />
++          Replace image
++        </button>
++      </div>
++    </section>
++  );
++}
+diff --git a/frontend/components/tools/image-compressor/CompressionSettings.tsx b/frontend/components/tools/image-compressor/CompressionSettings.tsx
+index d1d4df9..7326f44 100644
+--- a/frontend/components/tools/image-compressor/CompressionSettings.tsx
++++ b/frontend/components/tools/image-compressor/CompressionSettings.tsx
+@@ -1,32 +1,32 @@
+ "use client";
+ 
++import type { OutputFormat } from "@/hooks/useImageCompression";
++
+ interface CompressionSettingsProps {
+   quality: number;
+-  format: "image/jpeg" | "image/png" | "image/webp";
+-  loading: boolean;
++  format: OutputFormat;
++  isCompressing: boolean;
++  progress: number;
+   onQualityChange: (value: number) => void;
+-  onFormatChange: (
+-    value: "image/jpeg" | "image/png" | "image/webp"
+-  ) => void;
++  onFormatChange: (value: OutputFormat) => void;
+   onCompress: () => void;
+ }
+ 
+ export default function CompressionSettings({
+   quality,
+   format,
+-  loading,
++  isCompressing,
++  progress,
+   onQualityChange,
+   onFormatChange,
+   onCompress,
+ }: CompressionSettingsProps) {
+   return (
+     <div className="rounded-2xl border border-slate-700 bg-slate-900 p-6">
+-      <h2 className="text-2xl font-bold">
+-        Compression Settings
+-      </h2>
++      <h2 className="text-2xl font-bold">Compression settings</h2>
+ 
+       <p className="mt-2 text-sm text-slate-400">
+-        Adjust the quality and output format before compressing your image.
++        Choose an output format and quality. Your image stays on this device.
+       </p>
+ 
+       <div className="mt-8">
+@@ -44,8 +44,8 @@ export default function CompressionSettings({
+           max={100}
+           step={5}
+           value={quality}
+-          onChange={(e) =>
+-            onQualityChange(Number(e.target.value))
++          onChange={(event) =>
++            onQualityChange(Number(event.target.value))
+           }
+           className="w-full cursor-pointer"
+         />
+@@ -62,13 +62,8 @@ export default function CompressionSettings({
+         <select
+           id="output-format"
+           value={format}
+-          onChange={(e) =>
+-            onFormatChange(
+-              e.target.value as
+-                | "image/jpeg"
+-                | "image/png"
+-                | "image/webp"
+-            )
++          onChange={(event) =>
++            onFormatChange(event.target.value as OutputFormat)
+           }
+           className="w-full rounded-xl border border-slate-700 bg-slate-800 p-3 outline-none focus:border-blue-500"
+         >
+@@ -80,11 +75,24 @@ export default function CompressionSettings({
+ 
+       <button
+         onClick={onCompress}
+-        disabled={loading}
++        disabled={isCompressing}
+         className="mt-10 w-full rounded-xl bg-blue-600 py-3 font-semibold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
+       >
+-        {loading ? "Compressing..." : "Compress Image"}
++        {isCompressing ? `Compressing… ${progress}%` : "Compress image"}
+       </button>
++      {isCompressing && (
++        <div className="mt-4" aria-live="polite">
++          <div className="h-2 overflow-hidden rounded-full bg-slate-700">
++            <div
++              className="h-full rounded-full bg-blue-500 transition-all"
++              style={{ width: `${progress}%` }}
++            />
++          </div>
++          <p className="mt-2 text-sm text-slate-400">
++            Preparing your download…
++          </p>
++        </div>
++      )}
+     </div>
+   );
+-}
+\ No newline at end of file
++}
+diff --git a/frontend/components/tools/image-compressor/DownloadCard.tsx b/frontend/components/tools/image-compressor/DownloadCard.tsx
+deleted file mode 100644
+index e69de29..0000000
+diff --git a/frontend/components/tools/image-compressor/ImageCompressor.tsx b/frontend/components/tools/image-compressor/ImageCompressor.tsx
+index 4db6295..f354520 100644
+--- a/frontend/components/tools/image-compressor/ImageCompressor.tsx
++++ b/frontend/components/tools/image-compressor/ImageCompressor.tsx
+@@ -1,64 +1,60 @@
+ "use client";
+ 
+-import { useState } from "react";
+-
+ import UploadBox from "./UploadBox";
+ import ImagePreview from "./ImagePreview";
+ import CompressionSettings from "./CompressionSettings";
++import CompressionResult from "./CompressionResult";
++import { useImageCompression } from "@/hooks/useImageCompression";
+ 
+ export default function ImageCompressor() {
+-  const [file, setFile] = useState<File | null>(null);
+-
+-  const [quality, setQuality] = useState(80);
+-
+-  const [format, setFormat] = useState<
+-    "image/jpeg" | "image/png" | "image/webp"
+-  >("image/jpeg");
+-
+-  const [loading, setLoading] = useState(false);
+-
+-  async function handleCompress() {
+-    if (!file) return;
+-
+-    setLoading(true);
+-
+-    try {
+-      // Compression implementation comes in the next step
+-      await new Promise((resolve) => setTimeout(resolve, 1000));
+-
+-      alert("Compression engine will be implemented in the next step.");
+-    } finally {
+-      setLoading(false);
+-    }
+-  }
++  const {
++    clearImage,
++    compress,
++    error,
++    file,
++    format,
++    isCompressing,
++    progress,
++    quality,
++    replaceImage,
++    result,
++    setFormat,
++    setQuality,
++  } = useImageCompression();
+ 
+   return (
+     <div className="space-y-8">
+       {!file ? (
+-        <UploadBox
+-          file={file}
+-          onFileSelect={setFile}
+-        />
++        <UploadBox onFileSelect={replaceImage} />
+       ) : (
+-        <div className="grid gap-8 lg:grid-cols-3">
+-          <div className="lg:col-span-2">
+-            <ImagePreview file={file} />
++        <div className="space-y-8">
++          <div className="grid gap-8 lg:grid-cols-3">
++            <div className="lg:col-span-2">
++              <ImagePreview file={file} />
++            </div>
++
++            <CompressionSettings
++              quality={quality}
++              format={format}
++              isCompressing={isCompressing}
++              progress={progress}
++              onQualityChange={setQuality}
++              onFormatChange={setFormat}
++              onCompress={compress}
++            />
+           </div>
+-
+-          <CompressionSettings
+-            quality={quality}
+-            format={format}
+-            loading={loading}
+-            onQualityChange={setQuality}
+-            onFormatChange={(value) =>
+-              setFormat(
+-                value as "image/jpeg" | "image/png" | "image/webp"
+-              )
+-            }
+-            onCompress={handleCompress}
+-          />
++          {error && (
++            <p className="text-sm font-medium text-red-600">{error}</p>
++          )}
++          {result && (
++            <CompressionResult
++              originalFile={file}
++              result={result}
++              onReplace={clearImage}
++            />
++          )}
+         </div>
+       )}
+     </div>
+   );
+-}
+\ No newline at end of file
++}
+diff --git a/frontend/components/tools/image-compressor/ImagePreview.tsx b/frontend/components/tools/image-compressor/ImagePreview.tsx
+index dae5bc2..cbfd420 100644
+--- a/frontend/components/tools/image-compressor/ImagePreview.tsx
++++ b/frontend/components/tools/image-compressor/ImagePreview.tsx
+@@ -1,30 +1,29 @@
+ "use client";
+ 
+-import { useEffect, useState } from "react";
++import { useEffect, useMemo, useState } from "react";
++
++import type { ImageDimensions } from "@/hooks/useImageCompression";
+ 
+ interface ImagePreviewProps {
+   file: File;
+ }
+ 
+-interface ImageDimensions {
+-  width: number;
+-  height: number;
++function formatFileSize(bytes: number) {
++  return bytes < 1024 * 1024
++    ? `${(bytes / 1024).toFixed(1)} KB`
++    : `${(bytes / (1024 * 1024)).toFixed(2)} MB`;
+ }
+ 
+ export default function ImagePreview({
+   file,
+ }: ImagePreviewProps) {
+-  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
++  const previewUrl = useMemo(() => URL.createObjectURL(file), [file]);
+   const [dimensions, setDimensions] = useState<ImageDimensions>({
+     width: 0,
+     height: 0,
+   });
+ 
+   useEffect(() => {
+-    const objectUrl = URL.createObjectURL(file);
+-
+-    setPreviewUrl(objectUrl);
+-
+     const image = new Image();
+ 
+     image.onload = () => {
+@@ -34,22 +33,22 @@ export default function ImagePreview({
+       });
+     };
+ 
+-    image.src = objectUrl;
++    image.src = previewUrl;
+ 
+     return () => {
+-      URL.revokeObjectURL(objectUrl);
++      URL.revokeObjectURL(previewUrl);
+     };
+-  }, [file]);
++  }, [previewUrl]);
+ 
+   return (
+     <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+-      <h3 className="mb-6 text-xl font-semibold">
+-        Image Preview
+-      </h3>
++      <h3 className="mb-6 text-xl font-semibold">Original image</h3>
+ 
+       <div className="grid gap-8 md:grid-cols-2">
+         <div className="flex items-center justify-center rounded-xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-800">
+           {previewUrl ? (
++            // Blob URLs are generated locally and cannot be optimized by next/image.
++            // eslint-disable-next-line @next/next/no-img-element
+             <img
+               src={previewUrl}
+               alt={file.name}
+@@ -65,7 +64,7 @@ export default function ImagePreview({
+         <div className="space-y-5">
+           <div>
+             <p className="text-sm text-slate-500">
+-              File Name
++              File name
+             </p>
+ 
+             <p className="break-all font-medium">
+@@ -75,17 +74,17 @@ export default function ImagePreview({
+ 
+           <div>
+             <p className="text-sm text-slate-500">
+-              File Size
++              Original size
+             </p>
+ 
+             <p className="font-medium">
+-              {(file.size / 1024 / 1024).toFixed(2)} MB
++              {formatFileSize(file.size)}
+             </p>
+           </div>
+ 
+           <div>
+             <p className="text-sm text-slate-500">
+-              Dimensions
++              Original dimensions
+             </p>
+ 
+             <p className="font-medium">
+@@ -95,7 +94,7 @@ export default function ImagePreview({
+ 
+           <div>
+             <p className="text-sm text-slate-500">
+-              File Type
++              File type
+             </p>
+ 
+             <p className="font-medium uppercase">
+@@ -106,4 +105,4 @@ export default function ImagePreview({
+       </div>
+     </div>
+   );
+-}
+\ No newline at end of file
++}
+diff --git a/frontend/components/tools/image-compressor/UploadBox.tsx b/frontend/components/tools/image-compressor/UploadBox.tsx
+index 9f50cfe..9f4c39e 100644
+--- a/frontend/components/tools/image-compressor/UploadBox.tsx
++++ b/frontend/components/tools/image-compressor/UploadBox.tsx
+@@ -1,17 +1,16 @@
+ "use client";
+ 
+ import { useRef, useState } from "react";
+-import { ImageIcon, Upload, X } from "lucide-react";
++import { ImageIcon } from "lucide-react";
+ 
+ interface UploadBoxProps {
+-  file: File | null;
+-  onFileSelect: (file: File | null) => void;
++  onFileSelect: (file: File) => void;
+ }
+ 
+-const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10 MB
++const MAX_FILE_SIZE = 10 * 1024 * 1024;
++const SUPPORTED_TYPES = ["image/jpeg", "image/png", "image/webp"];
+ 
+ export default function UploadBox({
+-  file,
+   onFileSelect,
+ }: UploadBoxProps) {
+   const inputRef = useRef<HTMLInputElement>(null);
+@@ -20,8 +19,8 @@ export default function UploadBox({
+   const [error, setError] = useState("");
+ 
+   function validateFile(file: File) {
+-    if (!file.type.startsWith("image/")) {
+-      setError("Only image files are supported.");
++    if (!SUPPORTED_TYPES.includes(file.type)) {
++      setError("Choose a JPG, PNG, or WEBP image.");
+       return false;
+     }
+ 
+@@ -40,71 +39,61 @@ export default function UploadBox({
+     onFileSelect(file);
+   }
+ 
+-  function handleChange(
+-    e: React.ChangeEvent<HTMLInputElement>
+-  ) {
+-    const selected = e.target.files?.[0];
++  function handleChange(event: React.ChangeEvent<HTMLInputElement>) {
++    const selected = event.target.files?.[0];
+ 
+     if (!selected) return;
+ 
+     selectFile(selected);
+   }
+ 
+-  function handleDrop(
+-    e: React.DragEvent<HTMLDivElement>
+-  ) {
+-    e.preventDefault();
++  function handleDrop(event: React.DragEvent<HTMLDivElement>) {
++    event.preventDefault();
+ 
+     setIsDragging(false);
+ 
+-    const selected = e.dataTransfer.files?.[0];
++    const selected = event.dataTransfer.files?.[0];
+ 
+     if (!selected) return;
+ 
+     selectFile(selected);
+   }
+ 
+-  function clearFile() {
+-    onFileSelect(null);
+-
+-    if (inputRef.current) {
+-      inputRef.current.value = "";
+-    }
+-  }
+-
+   return (
+-    <>
++    <div className="space-y-3">
+       <div
+-        onDragOver={(e) => {
+-          e.preventDefault();
++        onClick={() => inputRef.current?.click()}
++        onDragOver={(event) => {
++          event.preventDefault();
+           setIsDragging(true);
+         }}
+         onDragLeave={() => setIsDragging(false)}
+         onDrop={handleDrop}
+-        className={`rounded-2xl border-2 border-dashed p-10 text-center transition-all cursor-pointer
++        className={`cursor-pointer rounded-2xl border-2 border-dashed p-8 text-center transition-all sm:p-12
+         ${
+           isDragging
+             ? "border-blue-500 bg-blue-50 dark:bg-slate-800"
+             : "border-slate-300 dark:border-slate-700"
+         }`}
+       >
+-        <Upload className="mx-auto mb-4 h-16 w-16 text-blue-600" />
++        <ImageIcon className="mx-auto mb-4 h-14 w-14 text-blue-600" />
+ 
+         <h2 className="text-2xl font-bold">
+           Upload Image
+         </h2>
+ 
+         <p className="mt-2 text-slate-500">
+-          Drag & Drop your image here
++          Drag and drop an image here, or click to browse.
+         </p>
+ 
+-        <p className="text-slate-500">
+-          or
+-        </p>
++        <p className="mt-1 text-sm text-slate-500">JPG, PNG, or WEBP up to 10 MB</p>
+ 
+         <button
+           type="button"
+-          onClick={() => inputRef.current?.click()}
++          onClick={(event) => {
++            event.stopPropagation();
++            inputRef.current?.click();
++          }}
+           className="mt-5 rounded-xl bg-blue-600 px-6 py-3 font-semibold text-white hover:bg-blue-700"
+         >
+           Choose Image
+@@ -114,17 +103,12 @@ export default function UploadBox({
+           ref={inputRef}
+           hidden
+           type="file"
+-          accept="image/*"
++          accept="image/jpeg,image/png,image/webp"
+           onChange={handleChange}
+         />
+       </div>
+ 
+-      {error && (
+-        <p className="mt-3 text-sm text-red-500">
+-          {error}
+-        </p>
+-      )}
+-
+-    </>
++      {error && <p className="text-sm text-red-600">{error}</p>}
++    </div>
+   );
+-}
+\ No newline at end of file
++}
+diff --git a/frontend/hooks/useImageCompression.ts b/frontend/hooks/useImageCompression.ts
+index e69de29..3360e2f 100644
+--- a/frontend/hooks/useImageCompression.ts
++++ b/frontend/hooks/useImageCompression.ts
+@@ -0,0 +1,112 @@
++"use client";
++
++import imageCompression from "browser-image-compression";
++import { useCallback, useState } from "react";
++
++export type OutputFormat = "image/jpeg" | "image/png" | "image/webp";
++
++export interface ImageDimensions {
++  width: number;
++  height: number;
++}
++
++export interface CompressionResult {
++  file: File;
++  sizeSaved: number;
++  savingsPercentage: number;
++}
++
++const BYTES_PER_MEGABYTE = 1024 * 1024;
++
++function outputFilename(fileName: string, format: OutputFormat) {
++  const extension = format.split("/")[1];
++  const basename = fileName.replace(/\.[^/.]+$/, "") || "compressed-image";
++
++  return `${basename}-compressed.${extension}`;
++}
++
++function errorMessage(error: unknown) {
++  return error instanceof Error
++    ? error.message
++    : "We couldn't compress this image. Please try another file.";
++}
++
++export function useImageCompression() {
++  const [file, setFile] = useState<File | null>(null);
++  const [quality, setQuality] = useState(80);
++  const [format, setFormat] = useState<OutputFormat>("image/jpeg");
++  const [progress, setProgress] = useState(0);
++  const [result, setResult] = useState<CompressionResult | null>(null);
++  const [error, setError] = useState<string | null>(null);
++  const [isCompressing, setIsCompressing] = useState(false);
++
++  const replaceImage = useCallback((nextFile: File) => {
++    setFile(nextFile);
++    setResult(null);
++    setError(null);
++    setProgress(0);
++  }, []);
++
++  const clearImage = useCallback(() => {
++    setFile(null);
++    setResult(null);
++    setError(null);
++    setProgress(0);
++  }, []);
++
++  const compress = useCallback(async () => {
++    if (!file || isCompressing) {
++      return;
++    }
++
++    setIsCompressing(true);
++    setError(null);
++    setResult(null);
++    setProgress(0);
++
++    try {
++      const compressed = await imageCompression(file, {
++        maxSizeMB: Math.max(0.1, (file.size / BYTES_PER_MEGABYTE) * (quality / 100)),
++        maxWidthOrHeight: 4096,
++        alwaysKeepResolution: true,
++        fileType: format,
++        initialQuality: quality / 100,
++        onProgress: (value) => setProgress(Math.round(value)),
++        useWebWorker: true,
++      });
++      const compressedFile = new File(
++        [compressed],
++        outputFilename(file.name, format),
++        { type: format, lastModified: Date.now() },
++      );
++      const sizeSaved = file.size - compressedFile.size;
++
++      setResult({
++        file: compressedFile,
++        sizeSaved,
++        savingsPercentage: Math.max(0, (sizeSaved / file.size) * 100),
++      });
++      setProgress(100);
++    } catch (compressionError: unknown) {
++      setError(errorMessage(compressionError));
++      setProgress(0);
++    } finally {
++      setIsCompressing(false);
++    }
++  }, [file, format, isCompressing, quality]);
++
++  return {
++    clearImage,
++    compress,
++    error,
++    file,
++    format,
++    isCompressing,
++    progress,
++    quality,
++    replaceImage,
++    result,
++    setFormat,
++    setQuality,
++  };
++}
+diff --git a/frontend/package.json b/frontend/package.json
+index 2cd1e04..2768255 100644
+--- a/frontend/package.json
++++ b/frontend/package.json
+@@ -10,6 +10,7 @@
+   },
+   "dependencies": {
+     "@hookform/resolvers": "^5.4.0",
++    "browser-image-compression": "^2.0.2",
+     "class-variance-authority": "^0.7.1",
+     "clsx": "^2.1.1",
+     "framer-motion": "^12.42.2",
+-- 
+2.50.1 (Apple Git-155)
+
+
+From 4f918b89854ede390b2ec5f4d1435f2b11288aa4 Mon Sep 17 00:00:00 2001
+From: manojbehera <kumarmanoj396@gmail.com>
+Date: Tue, 14 Jul 2026 00:02:18 +0530
+Subject: [PATCH 2/2] fix(image-compressor): preserve preview URLs
+
+---
+ .../image-compressor/ImageCompressor.tsx      |  3 ++-
+ .../tools/image-compressor/ImagePreview.tsx   | 27 ++++++++-----------
+ frontend/hooks/useImageCompression.ts         | 23 +++++++++++++---
+ 3 files changed, 33 insertions(+), 20 deletions(-)
+
+diff --git a/frontend/components/tools/image-compressor/ImageCompressor.tsx b/frontend/components/tools/image-compressor/ImageCompressor.tsx
+index f354520..6970f90 100644
+--- a/frontend/components/tools/image-compressor/ImageCompressor.tsx
++++ b/frontend/components/tools/image-compressor/ImageCompressor.tsx
+@@ -15,6 +15,7 @@ export default function ImageCompressor() {
+     format,
+     isCompressing,
+     progress,
++    previewUrl,
+     quality,
+     replaceImage,
+     result,
+@@ -30,7 +31,7 @@ export default function ImageCompressor() {
+         <div className="space-y-8">
+           <div className="grid gap-8 lg:grid-cols-3">
+             <div className="lg:col-span-2">
+-              <ImagePreview file={file} />
++              {previewUrl && <ImagePreview file={file} previewUrl={previewUrl} />}
+             </div>
+ 
+             <CompressionSettings
+diff --git a/frontend/components/tools/image-compressor/ImagePreview.tsx b/frontend/components/tools/image-compressor/ImagePreview.tsx
+index cbfd420..f4b568d 100644
+--- a/frontend/components/tools/image-compressor/ImagePreview.tsx
++++ b/frontend/components/tools/image-compressor/ImagePreview.tsx
+@@ -1,11 +1,12 @@
+ "use client";
+ 
+-import { useEffect, useMemo, useState } from "react";
++import { useEffect, useState } from "react";
+ 
+ import type { ImageDimensions } from "@/hooks/useImageCompression";
+ 
+ interface ImagePreviewProps {
+   file: File;
++  previewUrl: string;
+ }
+ 
+ function formatFileSize(bytes: number) {
+@@ -16,8 +17,8 @@ function formatFileSize(bytes: number) {
+ 
+ export default function ImagePreview({
+   file,
++  previewUrl,
+ }: ImagePreviewProps) {
+-  const previewUrl = useMemo(() => URL.createObjectURL(file), [file]);
+   const [dimensions, setDimensions] = useState<ImageDimensions>({
+     width: 0,
+     height: 0,
+@@ -36,7 +37,7 @@ export default function ImagePreview({
+     image.src = previewUrl;
+ 
+     return () => {
+-      URL.revokeObjectURL(previewUrl);
++      image.onload = null;
+     };
+   }, [previewUrl]);
+ 
+@@ -46,19 +47,13 @@ export default function ImagePreview({
+ 
+       <div className="grid gap-8 md:grid-cols-2">
+         <div className="flex items-center justify-center rounded-xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-800">
+-          {previewUrl ? (
+-            // Blob URLs are generated locally and cannot be optimized by next/image.
+-            // eslint-disable-next-line @next/next/no-img-element
+-            <img
+-              src={previewUrl}
+-              alt={file.name}
+-              className="max-h-80 w-auto max-w-full rounded-lg object-contain"
+-            />
+-          ) : (
+-            <div className="text-slate-500">
+-              Loading preview...
+-            </div>
+-          )}
++          {/* Blob URLs are generated locally and cannot be optimized by next/image. */}
++          {/* eslint-disable-next-line @next/next/no-img-element */}
++          <img
++            src={previewUrl}
++            alt={file.name}
++            className="max-h-80 w-auto max-w-full rounded-lg object-contain"
++          />
+         </div>
+ 
+         <div className="space-y-5">
+diff --git a/frontend/hooks/useImageCompression.ts b/frontend/hooks/useImageCompression.ts
+index 3360e2f..e31c7e8 100644
+--- a/frontend/hooks/useImageCompression.ts
++++ b/frontend/hooks/useImageCompression.ts
+@@ -1,7 +1,7 @@
+ "use client";
+ 
+ import imageCompression from "browser-image-compression";
+-import { useCallback, useState } from "react";
++import { useCallback, useRef, useState } from "react";
+ 
+ export type OutputFormat = "image/jpeg" | "image/png" | "image/webp";
+ 
+@@ -33,26 +33,42 @@ function errorMessage(error: unknown) {
+ 
+ export function useImageCompression() {
+   const [file, setFile] = useState<File | null>(null);
++  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+   const [quality, setQuality] = useState(80);
+   const [format, setFormat] = useState<OutputFormat>("image/jpeg");
+   const [progress, setProgress] = useState(0);
+   const [result, setResult] = useState<CompressionResult | null>(null);
+   const [error, setError] = useState<string | null>(null);
+   const [isCompressing, setIsCompressing] = useState(false);
++  const previewUrlRef = useRef<string | null>(null);
++
++  const revokePreviewUrl = useCallback(() => {
++    if (previewUrlRef.current) {
++      URL.revokeObjectURL(previewUrlRef.current);
++      previewUrlRef.current = null;
++    }
++  }, []);
+ 
+   const replaceImage = useCallback((nextFile: File) => {
++    revokePreviewUrl();
++    const nextPreviewUrl = URL.createObjectURL(nextFile);
++
++    previewUrlRef.current = nextPreviewUrl;
+     setFile(nextFile);
++    setPreviewUrl(nextPreviewUrl);
+     setResult(null);
+     setError(null);
+     setProgress(0);
+-  }, []);
++  }, [revokePreviewUrl]);
+ 
+   const clearImage = useCallback(() => {
++    revokePreviewUrl();
+     setFile(null);
++    setPreviewUrl(null);
+     setResult(null);
+     setError(null);
+     setProgress(0);
+-  }, []);
++  }, [revokePreviewUrl]);
+ 
+   const compress = useCallback(async () => {
+     if (!file || isCompressing) {
+@@ -103,6 +119,7 @@ export function useImageCompression() {
+     format,
+     isCompressing,
+     progress,
++    previewUrl,
+     quality,
+     replaceImage,
+     result,
+-- 
+2.50.1 (Apple Git-155)
+

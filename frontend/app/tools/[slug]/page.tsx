@@ -17,5 +17,5 @@ export default async function ToolPage({ params }: Props) {
     notFound();
   }
 
-  return <ImageCompressor tool={tool} />;
+  return <ImageCompressor />;
 }

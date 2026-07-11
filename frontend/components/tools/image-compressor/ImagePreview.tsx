@@ -1,26 +1,29 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+
+import type { ImageDimensions } from "@/hooks/useImageCompression";
 
 interface ImagePreviewProps {
   file: File;
 }
 
+function formatFileSize(bytes: number) {
+  return bytes < 1024 * 1024
+    ? `${(bytes / 1024).toFixed(1)} KB`
+    : `${(bytes / (1024 * 1024)).toFixed(2)} MB`;
+}
+
 export default function ImagePreview({
   file,
 }: ImagePreviewProps) {
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
-
-  const [dimensions, setDimensions] = useState({
+  const previewUrl = useMemo(() => URL.createObjectURL(file), [file]);
+  const [dimensions, setDimensions] = useState<ImageDimensions>({
     width: 0,
     height: 0,
   });
 
   useEffect(() => {
-    const url = URL.createObjectURL(file);
-
-    setPreviewUrl(url);
-
     const image = new Image();
 
     image.onload = () => {
@@ -30,63 +33,75 @@ export default function ImagePreview({
       });
     };
 
-    image.src = url;
+    image.src = previewUrl;
 
     return () => {
-      URL.revokeObjectURL(url);
+      URL.revokeObjectURL(previewUrl);
     };
-  }, [file]);
+  }, [previewUrl]);
 
   return (
-    <div className="rounded-2xl border border-slate-700 bg-slate-900 p-6">
-      <h2 className="mb-6 text-2xl font-bold">
-        Original Image
-      </h2>
+    <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+      <h3 className="mb-6 text-xl font-semibold">Original image</h3>
 
-      <div className="flex justify-center">
-        {previewUrl && (
-          <img
-            src={previewUrl}
-            alt={file.name}
-            className="max-h-96 rounded-xl"
-          />
-        )}
-      </div>
-
-      <div className="mt-8 grid gap-4 text-sm">
-
-        <div className="flex justify-between">
-          <span>Name</span>
-
-          <span className="font-medium">
-            {file.name}
-          </span>
+      <div className="grid gap-8 md:grid-cols-2">
+        <div className="flex items-center justify-center rounded-xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-800">
+          {previewUrl ? (
+            // Blob URLs are generated locally and cannot be optimized by next/image.
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={previewUrl}
+              alt={file.name}
+              className="max-h-80 w-auto max-w-full rounded-lg object-contain"
+            />
+          ) : (
+            <div className="text-slate-500">
+              Loading preview...
+            </div>
+          )}
         </div>
 
-        <div className="flex justify-between">
-          <span>Size</span>
+        <div className="space-y-5">
+          <div>
+            <p className="text-sm text-slate-500">
+              File name
+            </p>
 
-          <span className="font-medium">
-            {(file.size / 1024 / 1024).toFixed(2)} MB
-          </span>
+            <p className="break-all font-medium">
+              {file.name}
+            </p>
+          </div>
+
+          <div>
+            <p className="text-sm text-slate-500">
+              Original size
+            </p>
+
+            <p className="font-medium">
+              {formatFileSize(file.size)}
+            </p>
+          </div>
+
+          <div>
+            <p className="text-sm text-slate-500">
+              Original dimensions
+            </p>
+
+            <p className="font-medium">
+              {dimensions.width} × {dimensions.height}
+            </p>
+          </div>
+
+          <div>
+            <p className="text-sm text-slate-500">
+              File type
+            </p>
+
+            <p className="font-medium uppercase">
+              {file.type.replace("image/", "")}
+            </p>
+          </div>
         </div>
-
-        <div className="flex justify-between">
-          <span>Dimensions</span>
-
-          <span className="font-medium">
-            {dimensions.width} × {dimensions.height}
-          </span>
-        </div>
-
-        <div className="flex justify-between">
-          <span>Format</span>
-
-          <span className="font-medium">
-            {file.type.replace("image/", "").toUpperCase()}
-          </span>
-        </div>
-
       </div>
     </div>
   );
