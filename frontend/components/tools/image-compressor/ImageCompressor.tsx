@@ -15,28 +15,18 @@ export default function ImageCompressor() {
     "image/jpeg" | "image/png" | "image/webp"
   >("image/jpeg");
 
-  const [loading, setLoading] = useState(false);
-
-  async function handleCompress() {
-    if (!file) return;
-
-    setLoading(true);
-
-    try {
-      // Compression implementation comes in the next step
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-
-      alert("Compression engine will be implemented in the next step.");
-    } finally {
-      setLoading(false);
-    }
+  function handleCompress() {
+    console.log("Compress", {
+      file,
+      quality,
+      format,
+    });
   }
 
   return (
     <div className="space-y-8">
       {!file ? (
         <UploadBox
-          file={file}
           onFileSelect={setFile}
         />
       ) : (
@@ -48,13 +38,9 @@ export default function ImageCompressor() {
           <CompressionSettings
             quality={quality}
             format={format}
-            loading={loading}
+            loading={false}
             onQualityChange={setQuality}
-            onFormatChange={(value) =>
-              setFormat(
-                value as "image/jpeg" | "image/png" | "image/webp"
-              )
-            }
+            onFormatChange={setFormat}
             onCompress={handleCompress}
           />
         </div>
