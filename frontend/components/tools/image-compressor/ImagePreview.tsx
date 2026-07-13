@@ -1,11 +1,12 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 
 import type { ImageDimensions } from "@/hooks/useImageCompression";
 
 interface ImagePreviewProps {
   file: File;
+  previewUrl: string;
 }
 
 function formatFileSize(bytes: number) {
@@ -16,8 +17,8 @@ function formatFileSize(bytes: number) {
 
 export default function ImagePreview({
   file,
+  previewUrl,
 }: ImagePreviewProps) {
-  const previewUrl = useMemo(() => URL.createObjectURL(file), [file]);
   const [dimensions, setDimensions] = useState<ImageDimensions>({
     width: 0,
     height: 0,
@@ -36,7 +37,7 @@ export default function ImagePreview({
     image.src = previewUrl;
 
     return () => {
-      URL.revokeObjectURL(previewUrl);
+      image.onload = null;
     };
   }, [previewUrl]);
 
@@ -46,19 +47,13 @@ export default function ImagePreview({
 
       <div className="grid gap-8 md:grid-cols-2">
         <div className="flex items-center justify-center rounded-xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-800">
-          {previewUrl ? (
-            // Blob URLs are generated locally and cannot be optimized by next/image.
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={previewUrl}
-              alt={file.name}
-              className="max-h-80 w-auto max-w-full rounded-lg object-contain"
-            />
-          ) : (
-            <div className="text-slate-500">
-              Loading preview...
-            </div>
-          )}
+          {/* Blob URLs are generated locally and cannot be optimized by next/image. */}
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={previewUrl}
+            alt={file.name}
+            className="max-h-80 w-auto max-w-full rounded-lg object-contain"
+          />
         </div>
 
         <div className="space-y-5">

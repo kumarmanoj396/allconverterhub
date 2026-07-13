@@ -1,7 +1,7 @@
 "use client";
 
 import imageCompression from "browser-image-compression";
-import { useCallback, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 
 export type OutputFormat = "image/jpeg" | "image/png" | "image/webp";
 
@@ -33,26 +33,42 @@ function errorMessage(error: unknown) {
 
 export function useImageCompression() {
   const [file, setFile] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [quality, setQuality] = useState(80);
   const [format, setFormat] = useState<OutputFormat>("image/jpeg");
   const [progress, setProgress] = useState(0);
   const [result, setResult] = useState<CompressionResult | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isCompressing, setIsCompressing] = useState(false);
+  const previewUrlRef = useRef<string | null>(null);
+
+  const revokePreviewUrl = useCallback(() => {
+    if (previewUrlRef.current) {
+      URL.revokeObjectURL(previewUrlRef.current);
+      previewUrlRef.current = null;
+    }
+  }, []);
 
   const replaceImage = useCallback((nextFile: File) => {
+    revokePreviewUrl();
+    const nextPreviewUrl = URL.createObjectURL(nextFile);
+
+    previewUrlRef.current = nextPreviewUrl;
     setFile(nextFile);
+    setPreviewUrl(nextPreviewUrl);
     setResult(null);
     setError(null);
     setProgress(0);
-  }, []);
+  }, [revokePreviewUrl]);
 
   const clearImage = useCallback(() => {
+    revokePreviewUrl();
     setFile(null);
+    setPreviewUrl(null);
     setResult(null);
     setError(null);
     setProgress(0);
-  }, []);
+  }, [revokePreviewUrl]);
 
   const compress = useCallback(async () => {
     if (!file || isCompressing) {
@@ -103,6 +119,7 @@ export function useImageCompression() {
     format,
     isCompressing,
     progress,
+    previewUrl,
     quality,
     replaceImage,
     result,

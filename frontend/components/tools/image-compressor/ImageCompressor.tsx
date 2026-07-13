@@ -15,6 +15,7 @@ export default function ImageCompressor() {
     format,
     isCompressing,
     progress,
+    previewUrl,
     quality,
     replaceImage,
     result,
@@ -30,7 +31,7 @@ export default function ImageCompressor() {
         <div className="space-y-8">
           <div className="grid gap-8 lg:grid-cols-3">
             <div className="lg:col-span-2">
-              <ImagePreview file={file} />
+              {previewUrl && <ImagePreview file={file} previewUrl={previewUrl} />}
             </div>
 
             <CompressionSettings
