@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useState } from "react";
 import { ImageIcon } from "lucide-react";
 
 interface UploadBoxProps {
@@ -13,8 +13,6 @@ const SUPPORTED_TYPES = ["image/jpeg", "image/png", "image/webp"];
 export default function UploadBox({
   onFileSelect,
 }: UploadBoxProps) {
-  const inputRef = useRef<HTMLInputElement>(null);
-
   const [isDragging, setIsDragging] = useState(false);
   const [error, setError] = useState("");
 
@@ -62,7 +60,6 @@ export default function UploadBox({
   return (
     <div className="space-y-3">
       <div
-        onClick={() => inputRef.current?.click()}
         onDragOver={(event) => {
           event.preventDefault();
           setIsDragging(true);
@@ -88,23 +85,19 @@ export default function UploadBox({
 
         <p className="mt-1 text-sm text-slate-500">JPG, PNG, or WEBP up to 10 MB</p>
 
-        <button
-          type="button"
-          onClick={(event) => {
-            event.stopPropagation();
-            inputRef.current?.click();
-          }}
+        <label
+          htmlFor="image-upload"
           className="mt-5 rounded-xl bg-blue-600 px-6 py-3 font-semibold text-white hover:bg-blue-700"
         >
           Choose Image
-        </button>
+        </label>
 
         <input
-          ref={inputRef}
-          hidden
+          id="image-upload"
           type="file"
           accept="image/jpeg,image/png,image/webp"
           onChange={handleChange}
+          className="sr-only"
         />
       </div>
 
