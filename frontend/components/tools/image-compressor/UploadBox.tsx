@@ -86,11 +86,11 @@ export default function UploadBox({
         <p className="mt-1 text-sm text-slate-500">JPG, PNG, or WEBP up to 10 MB</p>
 
         <label
-          htmlFor="image-upload"
-          className="mt-5 rounded-xl bg-blue-600 px-6 py-3 font-semibold text-white hover:bg-blue-700"
-        >
-          Choose Image
-        </label>
+  htmlFor="image-upload"
+  className="mt-5 inline-flex cursor-pointer rounded-xl bg-blue-600 px-6 py-3 font-semibold text-white hover:bg-blue-700"
+>
+  Choose Image
+</label>
 
         <input
           id="image-upload"
