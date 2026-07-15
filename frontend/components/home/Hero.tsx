@@ -1,4 +1,14 @@
-export default function Hero() {
+"use client";
+
+import { Search } from "lucide-react";
+
+interface HeroProps {
+  query: string;
+  onQueryChange: (query: string) => void;
+  onCategorySelect: (category: string) => void;
+}
+
+export default function Hero({ query, onQueryChange, onCategorySelect }: HeroProps) {
   return (
     <section className="bg-gradient-to-br from-slate-900 via-blue-900 to-black text-white">
       <div className="mx-auto max-w-7xl px-6 py-24 text-center">
@@ -23,29 +33,30 @@ export default function Hero() {
           completely free.
         </p>
 
-        <div className="mt-10">
+        <div className="relative mx-auto mt-10 max-w-2xl">
+          <Search className="pointer-events-none absolute left-5 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
           <input
-            className="w-full max-w-2xl rounded-xl border border-gray-700 bg-gray-900 p-5 text-lg"
-            placeholder="🔍 Search over 100+ tools..."
+            value={query}
+            onChange={(event) => onQueryChange(event.target.value)}
+            onFocus={() => document.getElementById("tool-discovery")?.scrollIntoView({ behavior: "smooth", block: "start" })}
+            className="w-full rounded-xl border border-gray-700 bg-gray-900 py-5 pl-14 pr-5 text-lg outline-none transition focus:border-blue-500"
+            placeholder="Search tools, such as image compressor..."
+            aria-label="Search available tools"
           />
         </div>
 
         <div className="mt-8 flex flex-wrap justify-center gap-4">
 
-          <button className="rounded-xl bg-blue-600 px-6 py-3 font-semibold hover:bg-blue-700">
+          <button onClick={() => onCategorySelect("Image Tools")} className="rounded-xl bg-blue-600 px-6 py-3 font-semibold hover:bg-blue-700">
             Image Tools
           </button>
 
-          <button className="rounded-xl bg-red-600 px-6 py-3 font-semibold hover:bg-red-700">
-            PDF Tools
+          <button onClick={() => onCategorySelect("Utilities")} className="rounded-xl bg-purple-600 px-6 py-3 font-semibold hover:bg-purple-700">
+            Utilities
           </button>
 
-          <button className="rounded-xl bg-green-600 px-6 py-3 font-semibold hover:bg-green-700">
-            Calculators
-          </button>
-
-          <button className="rounded-xl bg-purple-600 px-6 py-3 font-semibold hover:bg-purple-700">
-            AI Tools
+          <button onClick={() => onCategorySelect("All")} className="rounded-xl border border-slate-400 px-6 py-3 font-semibold hover:bg-white/10">
+            Browse All Tools
           </button>
 
         </div>

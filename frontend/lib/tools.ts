@@ -48,7 +48,7 @@ export const featuredTools: Tool[] = [
     badge: "Top",
     category: "PDF Tools",
     route: "/tools/merge-pdf",
-    enabled: true,
+    enabled: false,
   },
   {
     id: "qr-generator",
@@ -68,6 +68,6 @@ export const featuredTools: Tool[] = [
     badge: "New",
     category: "Calculators",
     route: "/tools/emi-calculator",
-    enabled: true,
+    enabled: false,
   },
 ];

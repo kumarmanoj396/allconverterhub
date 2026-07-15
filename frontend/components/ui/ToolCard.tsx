@@ -16,8 +16,7 @@ export default function ToolCard({
   badge,
 }: ToolCardProps) {
   return (
-    <Link href={`/tools/${id}`}>
-      <div className="rounded-2xl border border-slate-800 bg-slate-900 p-6 transition-all duration-300 hover:-translate-y-2 hover:border-blue-500 hover:shadow-xl cursor-pointer">
+    <Link href={`/tools/${id}`} className="block rounded-2xl border border-slate-800 bg-slate-900 p-6 transition-all duration-300 hover:-translate-y-2 hover:border-blue-500 hover:shadow-xl">
         <div className="text-5xl">{icon}</div>
 
         <div className="mt-5 flex items-center justify-between">
@@ -36,10 +35,9 @@ export default function ToolCard({
           {description}
         </p>
 
-        <button className="mt-6 w-full rounded-xl bg-blue-600 py-3 font-semibold text-white hover:bg-blue-700">
+        <span className="mt-6 block w-full rounded-xl bg-blue-600 py-3 text-center font-semibold text-white">
           Use Tool
-        </button>
-      </div>
+        </span>
     </Link>
   );
 }
