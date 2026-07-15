@@ -1,13 +1,22 @@
-const categories = [
-  { icon: "🖼️", title: "Image Tools", count: "20+ Tools" },
-  { icon: "📄", title: "PDF Tools", count: "15+ Tools" },
-  { icon: "🎥", title: "Video Tools", count: "12+ Tools" },
-  { icon: "💻", title: "Developer", count: "18+ Tools" },
-  { icon: "🤖", title: "AI Tools", count: "25+ Tools" },
-  { icon: "🧮", title: "Calculators", count: "30+ Tools" },
-];
+"use client";
 
-export default function Categories() {
+const icons: Record<string, string> = {
+  "Image Tools": "🖼️",
+  Utilities: "🔳",
+};
+
+interface Category {
+  title: string;
+  count: number;
+}
+
+interface CategoriesProps {
+  categories: Category[];
+  selectedCategory: string;
+  onCategorySelect: (category: string) => void;
+}
+
+export default function Categories({ categories, selectedCategory, onCategorySelect }: CategoriesProps) {
   return (
     <section className="bg-gray-950 py-20">
       <div className="mx-auto max-w-7xl px-6">
@@ -17,18 +26,19 @@ export default function Categories() {
 
         <div className="grid gap-6 md:grid-cols-3">
           {categories.map((category) => (
-            <div
+            <button
               key={category.title}
-              className="rounded-2xl border border-gray-800 bg-gray-900 p-8 transition hover:-translate-y-2 hover:border-blue-500"
+              onClick={() => onCategorySelect(category.title)}
+              className={`rounded-2xl border p-8 text-left transition hover:-translate-y-2 hover:border-blue-500 ${selectedCategory === category.title ? "border-blue-500 bg-blue-950" : "border-gray-800 bg-gray-900"}`}
             >
-              <div className="text-5xl">{category.icon}</div>
+              <div className="text-5xl">{icons[category.title] ?? "🧰"}</div>
 
               <h3 className="mt-6 text-2xl font-bold text-white">
                 {category.title}
               </h3>
 
-              <p className="mt-2 text-gray-400">{category.count}</p>
-            </div>
+              <p className="mt-2 text-gray-400">{category.count} available {category.count === 1 ? "tool" : "tools"}</p>
+            </button>
           ))}
         </div>
       </div>
