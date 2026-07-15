@@ -1,5 +1,8 @@
 import { featuredTools } from "@/lib/tools";
 import ImageCompressor from "@/components/tools/image-compressor/ImageCompressor";
+import QrGenerator from "@/components/tools/qr-generator/QrGenerator";
+import ToolLayout from "@/components/layout/ToolLayout";
+import EmptyState from "@/components/tools/shared/EmptyState";
 import { notFound } from "next/navigation";
 
 type Props = {
@@ -17,5 +20,24 @@ export default async function ToolPage({ params }: Props) {
     notFound();
   }
 
-  return <ImageCompressor />;
+  if (slug === "image-compressor") {
+    return <ImageCompressor />;
+  }
+
+  if (slug === "qr-generator") {
+    return (
+      <ToolLayout
+        title="QR Generator"
+        description="Create a custom QR code for any URL or text, directly in your browser."
+      >
+        <QrGenerator />
+      </ToolLayout>
+    );
+  }
+
+  return (
+    <ToolLayout title={tool.title} description={tool.description}>
+      <EmptyState message="This tool is coming soon." />
+    </ToolLayout>
+  );
 }
