@@ -71,3 +71,7 @@ export const featuredTools: Tool[] = [
     enabled: false,
   },
 ];
+
+export function getToolById(id: string) {
+  return featuredTools.find((tool) => tool.id === id);
+}

@@ -1,3 +1,5 @@
+import type { Metadata } from "next";
+
 import { featuredTools } from "@/lib/tools";
 import ImageCompressor from "@/components/tools/image-compressor/ImageCompressor";
 import ImageConverter from "@/components/tools/image-converter/ImageConverter";
@@ -5,6 +7,8 @@ import ImageResizer from "@/components/tools/image-resizer/ImageResizer";
 import QrGenerator from "@/components/tools/qr-generator/QrGenerator";
 import ToolLayout from "@/components/layout/ToolLayout";
 import EmptyState from "@/components/tools/shared/EmptyState";
+import ToolStructuredData from "@/components/seo/ToolStructuredData";
+import { createToolMetadata } from "@/lib/seo";
 import { notFound } from "next/navigation";
 
 type Props = {
@@ -12,6 +16,20 @@ type Props = {
     slug: string;
   }>;
 };
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { slug } = await params;
+  const tool = featuredTools.find((item) => item.id === slug);
+
+  if (!tool || !tool.enabled) {
+    return {
+      robots: { index: false, follow: false },
+      title: "Tool not found",
+    };
+  }
+
+  return createToolMetadata(tool);
+}
 
 export default async function ToolPage({ params }: Props) {
   const { slug } = await params;
@@ -28,34 +46,34 @@ export default async function ToolPage({ params }: Props) {
 
   if (slug === "image-resizer") {
     return (
-      <ToolLayout
-        title="Image Resizer"
-        description="Resize JPG, PNG and WEBP images to exact dimensions, directly in your browser."
-      >
-        <ImageResizer />
-      </ToolLayout>
+      <>
+        <ToolStructuredData tool={tool} />
+        <ToolLayout title={tool.title} description={tool.description}>
+          <ImageResizer />
+        </ToolLayout>
+      </>
     );
   }
 
   if (slug === "image-converter") {
     return (
-      <ToolLayout
-        title="Image Converter"
-        description="Convert JPG, PNG and WEBP images directly in your browser."
-      >
-        <ImageConverter />
-      </ToolLayout>
+      <>
+        <ToolStructuredData tool={tool} />
+        <ToolLayout title={tool.title} description={tool.description}>
+          <ImageConverter />
+        </ToolLayout>
+      </>
     );
   }
 
   if (slug === "qr-generator") {
     return (
-      <ToolLayout
-        title="QR Generator"
-        description="Create a custom QR code for any URL or text, directly in your browser."
-      >
-        <QrGenerator />
-      </ToolLayout>
+      <>
+        <ToolStructuredData tool={tool} />
+        <ToolLayout title={tool.title} description={tool.description}>
+          <QrGenerator />
+        </ToolLayout>
+      </>
     );
   }
 
