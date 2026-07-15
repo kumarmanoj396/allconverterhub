@@ -21,6 +21,16 @@ export const featuredTools: Tool[] = [
     enabled: true,
   },
   {
+    id: "image-resizer",
+    title: "Image Resizer",
+    description: "Resize JPG, PNG and WEBP images to exact dimensions.",
+    icon: "↔️",
+    badge: "New",
+    category: "Image Tools",
+    route: "/tools/image-resizer",
+    enabled: true,
+  },
+  {
     id: "merge-pdf",
     title: "Merge PDF",
     description: "Merge multiple PDF files into one.",

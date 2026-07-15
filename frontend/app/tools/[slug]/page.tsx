@@ -1,5 +1,6 @@
 import { featuredTools } from "@/lib/tools";
 import ImageCompressor from "@/components/tools/image-compressor/ImageCompressor";
+import ImageResizer from "@/components/tools/image-resizer/ImageResizer";
 import QrGenerator from "@/components/tools/qr-generator/QrGenerator";
 import ToolLayout from "@/components/layout/ToolLayout";
 import EmptyState from "@/components/tools/shared/EmptyState";
@@ -22,6 +23,17 @@ export default async function ToolPage({ params }: Props) {
 
   if (slug === "image-compressor") {
     return <ImageCompressor />;
+  }
+
+  if (slug === "image-resizer") {
+    return (
+      <ToolLayout
+        title="Image Resizer"
+        description="Resize JPG, PNG and WEBP images to exact dimensions, directly in your browser."
+      >
+        <ImageResizer />
+      </ToolLayout>
+    );
   }
 
   if (slug === "qr-generator") {
