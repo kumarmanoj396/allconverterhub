@@ -1,5 +1,6 @@
 import { featuredTools } from "@/lib/tools";
 import ImageCompressor from "@/components/tools/image-compressor/ImageCompressor";
+import ImageConverter from "@/components/tools/image-converter/ImageConverter";
 import ImageResizer from "@/components/tools/image-resizer/ImageResizer";
 import QrGenerator from "@/components/tools/qr-generator/QrGenerator";
 import ToolLayout from "@/components/layout/ToolLayout";
@@ -32,6 +33,17 @@ export default async function ToolPage({ params }: Props) {
         description="Resize JPG, PNG and WEBP images to exact dimensions, directly in your browser."
       >
         <ImageResizer />
+      </ToolLayout>
+    );
+  }
+
+  if (slug === "image-converter") {
+    return (
+      <ToolLayout
+        title="Image Converter"
+        description="Convert JPG, PNG and WEBP images directly in your browser."
+      >
+        <ImageConverter />
       </ToolLayout>
     );
   }

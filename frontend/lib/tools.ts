@@ -31,6 +31,16 @@ export const featuredTools: Tool[] = [
     enabled: true,
   },
   {
+    id: "image-converter",
+    title: "Image Converter",
+    description: "Convert JPG, PNG and WEBP images in your browser.",
+    icon: "🔄",
+    badge: "New",
+    category: "Image Tools",
+    route: "/tools/image-converter",
+    enabled: true,
+  },
+  {
     id: "merge-pdf",
     title: "Merge PDF",
     description: "Merge multiple PDF files into one.",
