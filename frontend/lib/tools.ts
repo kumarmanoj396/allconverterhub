@@ -61,6 +61,16 @@ export const featuredTools: Tool[] = [
     enabled: true,
   },
   {
+    id: "metadata-remover",
+    title: "Metadata Remover",
+    description: "Remove EXIF, GPS, and camera metadata from images in your browser.",
+    icon: "🛡️",
+    badge: "New",
+    category: "Image Tools",
+    route: "/tools/metadata-remover",
+    enabled: true,
+  },
+  {
     id: "merge-pdf",
     title: "Merge PDF",
     description: "Merge multiple PDF files into one document in your browser.",
