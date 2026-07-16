@@ -5,6 +5,7 @@ import ImageCompressor from "@/components/tools/image-compressor/ImageCompressor
 import ImageConverter from "@/components/tools/image-converter/ImageConverter";
 import ImageEditor from "@/components/tools/image-editor/ImageEditor";
 import ImageWatermark from "@/components/tools/image-watermark/ImageWatermark";
+import MetadataRemover from "@/components/tools/metadata-remover/MetadataRemover";
 import ImageResizer from "@/components/tools/image-resizer/ImageResizer";
 import ImageToPdf from "@/components/tools/image-to-pdf/ImageToPdf";
 import PdfMerge from "@/components/tools/pdf-merge/PdfMerge";
@@ -89,6 +90,17 @@ export default async function ToolPage({ params }: Props) {
         <ToolStructuredData tool={tool} />
         <ToolLayout title={tool.title} description={tool.description}>
           <ImageWatermark />
+        </ToolLayout>
+      </>
+    );
+  }
+
+  if (slug === "metadata-remover") {
+    return (
+      <>
+        <ToolStructuredData tool={tool} />
+        <ToolLayout title={tool.title} description={tool.description}>
+          <MetadataRemover />
         </ToolLayout>
       </>
     );
