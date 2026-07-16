@@ -61,6 +61,16 @@ export const featuredTools: Tool[] = [
     enabled: true,
   },
   {
+    id: "image-to-pdf",
+    title: "Image to PDF",
+    description: "Convert multiple JPG, PNG, or WEBP images into one PDF in your browser.",
+    icon: "🖼️",
+    badge: "New",
+    category: "PDF Tools",
+    route: "/tools/image-to-pdf",
+    enabled: true,
+  },
+  {
     id: "qr-generator",
     title: "QR Generator",
     description: "Generate QR codes for URLs and text.",
