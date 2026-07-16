@@ -7,6 +7,7 @@ import ImageResizer from "@/components/tools/image-resizer/ImageResizer";
 import ImageToPdf from "@/components/tools/image-to-pdf/ImageToPdf";
 import PdfMerge from "@/components/tools/pdf-merge/PdfMerge";
 import PdfSplit from "@/components/tools/pdf-split/PdfSplit";
+import PdfToImage from "@/components/tools/pdf-to-image/PdfToImage";
 import QrGenerator from "@/components/tools/qr-generator/QrGenerator";
 import ToolLayout from "@/components/layout/ToolLayout";
 import EmptyState from "@/components/tools/shared/EmptyState";
@@ -108,6 +109,17 @@ export default async function ToolPage({ params }: Props) {
         <ToolStructuredData tool={tool} />
         <ToolLayout title={tool.title} description={tool.description}>
           <ImageToPdf />
+        </ToolLayout>
+      </>
+    );
+  }
+
+  if (slug === "pdf-to-image") {
+    return (
+      <>
+        <ToolStructuredData tool={tool} />
+        <ToolLayout title={tool.title} description={tool.description}>
+          <PdfToImage />
         </ToolLayout>
       </>
     );
