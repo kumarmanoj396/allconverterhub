@@ -51,6 +51,16 @@ export const featuredTools: Tool[] = [
     enabled: true,
   },
   {
+    id: "image-watermark",
+    title: "Image Watermark",
+    description: "Add a text watermark to JPG, PNG, or WEBP images in your browser.",
+    icon: "©️",
+    badge: "New",
+    category: "Image Tools",
+    route: "/tools/image-watermark",
+    enabled: true,
+  },
+  {
     id: "merge-pdf",
     title: "Merge PDF",
     description: "Merge multiple PDF files into one document in your browser.",
