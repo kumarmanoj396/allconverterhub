@@ -5,9 +5,10 @@ import { useState } from "react";
 
 interface PdfUploadProps {
   onFilesSelect: (files: File[]) => void;
+  multiple?: boolean;
 }
 
-export default function PdfUpload({ onFilesSelect }: PdfUploadProps) {
+export default function PdfUpload({ onFilesSelect, multiple = true }: PdfUploadProps) {
   const [isDragging, setIsDragging] = useState(false);
 
   const selectFiles = (files: FileList | null) => {
@@ -31,17 +32,17 @@ export default function PdfUpload({ onFilesSelect }: PdfUploadProps) {
       }`}
     >
       <FileUp className="mx-auto h-12 w-12 text-blue-400" />
-      <h2 className="mt-4 text-xl font-bold">Add PDF files</h2>
-      <p className="mt-2 text-sm text-slate-400">Drag and drop PDFs here, or choose files from your device.</p>
+      <h2 className="mt-4 text-xl font-bold">{multiple ? "Add PDF files" : "Upload a PDF"}</h2>
+      <p className="mt-2 text-sm text-slate-400">Drag and drop {multiple ? "PDFs" : "a PDF"} here, or choose {multiple ? "files" : "a file"} from your device.</p>
       <p className="mt-1 text-xs text-slate-500">Up to 25 MB per file and 100 MB in total.</p>
       <label htmlFor="pdf-merge-upload" className="mt-5 inline-flex cursor-pointer rounded-xl bg-blue-600 px-5 py-3 font-semibold text-white transition hover:bg-blue-700">
-        Choose PDFs
+        {multiple ? "Choose PDFs" : "Choose PDF"}
       </label>
       <input
         id="pdf-merge-upload"
         type="file"
         accept="application/pdf,.pdf"
-        multiple
+        multiple={multiple}
         onChange={(event) => {
           selectFiles(event.target.files);
           event.target.value = "";
