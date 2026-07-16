@@ -4,6 +4,7 @@ import { featuredTools } from "@/lib/tools";
 import ImageCompressor from "@/components/tools/image-compressor/ImageCompressor";
 import ImageConverter from "@/components/tools/image-converter/ImageConverter";
 import ImageResizer from "@/components/tools/image-resizer/ImageResizer";
+import PdfMerge from "@/components/tools/pdf-merge/PdfMerge";
 import QrGenerator from "@/components/tools/qr-generator/QrGenerator";
 import ToolLayout from "@/components/layout/ToolLayout";
 import EmptyState from "@/components/tools/shared/EmptyState";
@@ -72,6 +73,17 @@ export default async function ToolPage({ params }: Props) {
         <ToolStructuredData tool={tool} />
         <ToolLayout title={tool.title} description={tool.description}>
           <QrGenerator />
+        </ToolLayout>
+      </>
+    );
+  }
+
+  if (slug === "merge-pdf") {
+    return (
+      <>
+        <ToolStructuredData tool={tool} />
+        <ToolLayout title={tool.title} description={tool.description}>
+          <PdfMerge />
         </ToolLayout>
       </>
     );

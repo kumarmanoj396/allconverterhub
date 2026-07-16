@@ -43,12 +43,12 @@ export const featuredTools: Tool[] = [
   {
     id: "merge-pdf",
     title: "Merge PDF",
-    description: "Merge multiple PDF files into one.",
+    description: "Merge multiple PDF files into one document in your browser.",
     icon: "📄",
     badge: "Top",
     category: "PDF Tools",
     route: "/tools/merge-pdf",
-    enabled: false,
+    enabled: true,
   },
   {
     id: "qr-generator",
