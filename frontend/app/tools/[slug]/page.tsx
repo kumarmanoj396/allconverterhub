@@ -4,6 +4,7 @@ import { featuredTools } from "@/lib/tools";
 import ImageCompressor from "@/components/tools/image-compressor/ImageCompressor";
 import ImageConverter from "@/components/tools/image-converter/ImageConverter";
 import ImageResizer from "@/components/tools/image-resizer/ImageResizer";
+import ImageToPdf from "@/components/tools/image-to-pdf/ImageToPdf";
 import PdfMerge from "@/components/tools/pdf-merge/PdfMerge";
 import PdfSplit from "@/components/tools/pdf-split/PdfSplit";
 import QrGenerator from "@/components/tools/qr-generator/QrGenerator";
@@ -96,6 +97,17 @@ export default async function ToolPage({ params }: Props) {
         <ToolStructuredData tool={tool} />
         <ToolLayout title={tool.title} description={tool.description}>
           <PdfSplit />
+        </ToolLayout>
+      </>
+    );
+  }
+
+  if (slug === "image-to-pdf") {
+    return (
+      <>
+        <ToolStructuredData tool={tool} />
+        <ToolLayout title={tool.title} description={tool.description}>
+          <ImageToPdf />
         </ToolLayout>
       </>
     );
