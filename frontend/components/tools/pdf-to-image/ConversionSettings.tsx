@@ -26,7 +26,7 @@ export default function ConversionSettings({ isConverting, progress, onConvert }
         <div className="flex items-center justify-between"><label htmlFor="pdf-image-quality" className="text-sm font-semibold">Quality</label><span className="rounded-md bg-blue-600 px-2 py-1 text-sm font-semibold text-white">{supportsQuality ? `${quality}%` : "Lossless"}</span></div>
         <input id="pdf-image-quality" type="range" min="10" max="100" step="5" value={quality} disabled={!supportsQuality} onChange={(event) => setQuality(Number(event.target.value))} className="mt-3 w-full disabled:cursor-not-allowed disabled:opacity-40" />
       </div>
-      <button type="button" onClick={() => onConvert(format, quality / 100)} disabled={isConverting} className="mt-8 w-full rounded-xl bg-blue-600 py-3 font-semibold text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50">{isConverting ? `Converting… ${progress}%` : "Convert PDF"}</button>
+      <button type="button" onClick={() => onConvert(format, quality / 100)} disabled={isConverting} className="mt-8 w-full rounded-xl bg-blue-600 py-3 font-semibold text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50">{isConverting ? `Converting to Images… ${progress}%` : "Convert to Images"}</button>
       {isConverting && <div className="mt-4"><div className="h-2 overflow-hidden rounded-full bg-slate-700"><div className="h-full bg-blue-500 transition-all" style={{ width: `${progress}%` }} /></div></div>}
     </section>
   );
