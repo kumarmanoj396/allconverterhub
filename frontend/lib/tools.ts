@@ -51,6 +51,16 @@ export const featuredTools: Tool[] = [
     enabled: true,
   },
   {
+    id: "split-pdf",
+    title: "Split PDF",
+    description: "Split PDF pages or custom ranges into separate files in your browser.",
+    icon: "✂️",
+    badge: "New",
+    category: "PDF Tools",
+    route: "/tools/split-pdf",
+    enabled: true,
+  },
+  {
     id: "qr-generator",
     title: "QR Generator",
     description: "Generate QR codes for URLs and text.",
