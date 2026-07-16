@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { featuredTools } from "@/lib/tools";
 import ImageCompressor from "@/components/tools/image-compressor/ImageCompressor";
 import ImageConverter from "@/components/tools/image-converter/ImageConverter";
+import ImageEditor from "@/components/tools/image-editor/ImageEditor";
 import ImageResizer from "@/components/tools/image-resizer/ImageResizer";
 import ImageToPdf from "@/components/tools/image-to-pdf/ImageToPdf";
 import PdfMerge from "@/components/tools/pdf-merge/PdfMerge";
@@ -65,6 +66,17 @@ export default async function ToolPage({ params }: Props) {
         <ToolStructuredData tool={tool} />
         <ToolLayout title={tool.title} description={tool.description}>
           <ImageConverter />
+        </ToolLayout>
+      </>
+    );
+  }
+
+  if (slug === "image-editor") {
+    return (
+      <>
+        <ToolStructuredData tool={tool} />
+        <ToolLayout title={tool.title} description={tool.description}>
+          <ImageEditor />
         </ToolLayout>
       </>
     );

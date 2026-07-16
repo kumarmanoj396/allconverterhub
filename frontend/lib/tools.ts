@@ -41,6 +41,16 @@ export const featuredTools: Tool[] = [
     enabled: true,
   },
   {
+    id: "image-editor",
+    title: "Image Editor",
+    description: "Crop, rotate, and flip JPG, PNG, or WEBP images in your browser.",
+    icon: "✨",
+    badge: "New",
+    category: "Image Tools",
+    route: "/tools/image-editor",
+    enabled: true,
+  },
+  {
     id: "merge-pdf",
     title: "Merge PDF",
     description: "Merge multiple PDF files into one document in your browser.",
