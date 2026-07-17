@@ -44,10 +44,27 @@ async function post<T>(path: string, body: Record<string, string>): Promise<T> {
   return response.json() as Promise<T>;
 }
 
+async function get<T>(path: string): Promise<T> {
+  let response: Response;
+
+  try {
+    response = await fetch(`${apiBaseUrl}${path}`);
+  } catch {
+    throw new Error("Unable to reach the account service. Please try again later.");
+  }
+
+  if (!response.ok) throw new Error(await readError(response));
+  return response.json() as Promise<T>;
+}
+
 export async function registerAccount(email: string, password: string) {
   return post<{ message: string }>("/auth/register", { email, password });
 }
 
 export async function loginAccount(email: string, password: string) {
   return post<AuthSession>("/auth/login", { email, password });
+}
+
+export async function verifyEmail(token: string) {
+  return get<{ message: string }>(`/auth/verify-email?token=${encodeURIComponent(token)}`);
 }
