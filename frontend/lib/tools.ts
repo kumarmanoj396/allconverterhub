@@ -71,6 +71,16 @@ export const featuredTools: Tool[] = [
     enabled: true,
   },
   {
+    id: "background-remover",
+    title: "Background Remove",
+    description: "Remove image backgrounds with private, browser-based AI.",
+    icon: "✂️",
+    badge: "New",
+    category: "Image Tools",
+    route: "/tools/background-remover",
+    enabled: true,
+  },
+  {
     id: "merge-pdf",
     title: "Merge PDF",
     description: "Merge multiple PDF files into one document in your browser.",
