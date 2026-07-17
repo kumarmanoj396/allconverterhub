@@ -1,5 +1,7 @@
 "use client";
 
+import { SearchX } from "lucide-react";
+
 import ToolCard from "@/components/ui/ToolCard";
 import type { Tool } from "@/lib/tools";
 
@@ -45,7 +47,7 @@ export default function FeaturedTools({ tools, query, selectedCategory, onCatego
             {filteredTools.map((tool) => <ToolCard key={tool.id} id={tool.id} icon={tool.icon} title={tool.title} description={tool.description} badge={tool.badge} />)}
           </div>
         ) : (
-          <div className="mt-6 rounded-2xl border border-dashed border-slate-700 p-10 text-center text-slate-400">No matching tool yet. Try searching for image, QR, resize, or convert.</div>
+          <div className="mt-6 flex flex-col items-center rounded-2xl border border-dashed border-slate-700 bg-slate-900 p-10 text-center"><SearchX className="h-10 w-10 text-slate-400" /><h4 className="mt-4 text-lg font-bold text-white">No matching tools</h4><p className="mt-2 max-w-md text-sm text-slate-400">Try image, PDF, QR, resize, or convert. You can also clear the active category filter.</p>{selectedCategory !== "All" && <button type="button" onClick={() => onCategorySelect("All")} className="mt-5 rounded-lg border border-slate-600 px-4 py-2 text-sm font-semibold text-white hover:border-blue-500">Show all tools</button>}</div>
         )}
       </div>
     </section>

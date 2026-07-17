@@ -175,7 +175,7 @@ export default async function ToolPage({ params }: Props) {
 
   return (
     <ToolLayout title={tool.title} toolId={tool.id} description={tool.description}>
-      <EmptyState message="This tool is coming soon." />
+      <EmptyState title="Coming soon" message="This tool is planned and will be available soon." description="Browse the available image, PDF, and utility tools in the meantime." />
     </ToolLayout>
   );
 }
