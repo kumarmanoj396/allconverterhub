@@ -5,6 +5,8 @@ export interface Tool {
   icon: string;
   badge?: string;
   category: string;
+  featured?: boolean;
+  popular?: boolean;
   route: string;
   enabled: boolean;
 }
@@ -17,6 +19,8 @@ export const featuredTools: Tool[] = [
     icon: "🖼️",
     badge: "Popular",
     category: "Image Tools",
+    featured: true,
+    popular: true,
     route: "/tools/image-compressor",
     enabled: true,
   },
@@ -27,6 +31,7 @@ export const featuredTools: Tool[] = [
     icon: "↔️",
     badge: "New",
     category: "Image Tools",
+    popular: true,
     route: "/tools/image-resizer",
     enabled: true,
   },
@@ -37,6 +42,7 @@ export const featuredTools: Tool[] = [
     icon: "🔄",
     badge: "New",
     category: "Image Tools",
+    popular: true,
     route: "/tools/image-converter",
     enabled: true,
   },
@@ -47,6 +53,7 @@ export const featuredTools: Tool[] = [
     icon: "✨",
     badge: "New",
     category: "Image Tools",
+    featured: true,
     route: "/tools/image-editor",
     enabled: true,
   },
@@ -57,6 +64,7 @@ export const featuredTools: Tool[] = [
     icon: "©️",
     badge: "New",
     category: "Image Tools",
+    featured: true,
     route: "/tools/image-watermark",
     enabled: true,
   },
@@ -87,6 +95,8 @@ export const featuredTools: Tool[] = [
     icon: "📄",
     badge: "Top",
     category: "PDF Tools",
+    featured: true,
+    popular: true,
     route: "/tools/merge-pdf",
     enabled: true,
   },
@@ -97,6 +107,7 @@ export const featuredTools: Tool[] = [
     icon: "✂️",
     badge: "New",
     category: "PDF Tools",
+    popular: true,
     route: "/tools/split-pdf",
     enabled: true,
   },
@@ -127,6 +138,7 @@ export const featuredTools: Tool[] = [
     icon: "🔳",
     badge: "Free",
     category: "Utilities",
+    popular: true,
     route: "/tools/qr-generator",
     enabled: true,
   },
