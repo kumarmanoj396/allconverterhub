@@ -6,6 +6,7 @@ import { featuredTools } from "@/lib/tools";
 
 import Categories from "./Categories";
 import FeaturedTools from "./FeaturedTools";
+import FavoriteTools from "./FavoriteTools";
 import Hero from "./Hero";
 import RecentTools from "./RecentTools";
 
@@ -28,6 +29,7 @@ export default function HomeToolDiscovery() {
   return (
     <>
       <Hero query={query} onQueryChange={setQuery} onCategorySelect={selectCategory} />
+      <FavoriteTools tools={tools} />
       <RecentTools tools={tools} />
       <Categories categories={categories} selectedCategory={selectedCategory} onCategorySelect={selectCategory} />
       <FeaturedTools tools={tools} query={query} selectedCategory={selectedCategory} onCategorySelect={setSelectedCategory} />
