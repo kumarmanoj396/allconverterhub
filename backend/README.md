@@ -11,10 +11,17 @@ docker compose up -d
 export MONGODB_URI="mongodb://localhost:27017/allconverterhub"
 export FRONTEND_URL="http://localhost:3000"
 export JWT_SECRET="$(openssl rand -base64 48)"
-./mvnw spring-boot:run
+./gradlew bootRun
 ```
 
-If Maven Wrapper is not present in your environment, run `mvn spring-boot:run` instead. Mailpit receives local emails at `http://localhost:8025`.
+Mailpit receives local emails at `http://localhost:8025`.
+
+## Build and test
+
+```bash
+./gradlew test
+./gradlew build
+```
 
 ## API contract
 
