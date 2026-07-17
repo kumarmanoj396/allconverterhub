@@ -9,5 +9,12 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class OpenApiConfig {
-  @Bean public OpenAPI openApi() { return new OpenAPI().info(new Info().title("AllConverterHub API").version("v1").description("Authentication and platform API for AllConverterHub.")).components(new Components().addSecuritySchemes("bearerAuth", new SecurityScheme().type(SecurityScheme.Type.HTTP).scheme("bearer").bearerFormat("JWT"))); }
+  @Bean
+  public OpenAPI openApi() {
+    return new OpenAPI()
+        .info(new Info().title("AllConverterHub API").version("v1")
+            .description("Authentication and platform API for AllConverterHub."))
+        .components(new Components().addSecuritySchemes("bearerAuth",
+            new SecurityScheme().type(SecurityScheme.Type.HTTP).scheme("bearer").bearerFormat("JWT")));
+  }
 }

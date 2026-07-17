@@ -19,6 +19,30 @@ import java.io.IOException;
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
   private final JwtService jwtService;
-  public JwtAuthenticationFilter(JwtService jwtService) { this.jwtService = jwtService; }
-  @Override protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws ServletException, IOException { String header = request.getHeader("Authorization"); if (header == null || !header.startsWith("Bearer ")) { chain.doFilter(request, response); return; } try { Claims claims = jwtService.parse(header.substring(7)); if ("access".equals(claims.get("type"))) { UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(claims.getSubject(), null, List.of(new SimpleGrantedAuthority("ROLE_USER"))); authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request)); SecurityContextHolder.getContext().setAuthentication(authentication); } } catch (JwtException ignored) { SecurityContextHolder.clearContext(); } chain.doFilter(request, response); }
+
+  public JwtAuthenticationFilter(JwtService jwtService) {
+    this.jwtService = jwtService;
+  }
+
+  @Override
+  protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
+      throws ServletException, IOException {
+    String header = request.getHeader("Authorization");
+    if (header == null || !header.startsWith("Bearer ")) {
+      chain.doFilter(request, response);
+      return;
+    }
+    try {
+      Claims claims = jwtService.parse(header.substring(7));
+      if ("access".equals(claims.get("type"))) {
+        UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
+            claims.getSubject(), null, List.of(new SimpleGrantedAuthority("ROLE_USER")));
+        authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+      }
+    } catch (JwtException ignored) {
+      SecurityContextHolder.clearContext();
+    }
+    chain.doFilter(request, response);
+  }
 }
