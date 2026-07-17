@@ -4,6 +4,7 @@ import imageCompression from "browser-image-compression";
 import { useCallback, useRef, useState } from "react";
 
 export type OutputFormat = "image/jpeg" | "image/png" | "image/webp";
+export type CompressionMode = "quality" | "target-size";
 
 export interface ImageDimensions {
   width: number;
@@ -14,6 +15,8 @@ export interface CompressionResult {
   file: File;
   sizeSaved: number;
   savingsPercentage: number;
+  targetSizeKB?: number;
+  targetReached?: boolean;
 }
 
 const BYTES_PER_MEGABYTE = 1024 * 1024;
@@ -35,6 +38,8 @@ export function useImageCompression() {
   const [file, setFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [quality, setQuality] = useState(80);
+  const [compressionMode, setCompressionMode] = useState<CompressionMode>("quality");
+  const [targetSizeKB, setTargetSizeKB] = useState(200);
   const [format, setFormat] = useState<OutputFormat>("image/jpeg");
   const [progress, setProgress] = useState(0);
   const [result, setResult] = useState<CompressionResult | null>(null);
@@ -81,12 +86,16 @@ export function useImageCompression() {
     setProgress(0);
 
     try {
+      const targetBytes = targetSizeKB * 1024;
+      const isTargetMode = compressionMode === "target-size";
       const compressed = await imageCompression(file, {
-        maxSizeMB: Math.max(0.1, (file.size / BYTES_PER_MEGABYTE) * (quality / 100)),
+        maxSizeMB: isTargetMode
+          ? Math.max(0.02, targetBytes / BYTES_PER_MEGABYTE)
+          : Math.max(0.1, (file.size / BYTES_PER_MEGABYTE) * (quality / 100)),
         maxWidthOrHeight: 4096,
         alwaysKeepResolution: true,
         fileType: format,
-        initialQuality: quality / 100,
+        initialQuality: isTargetMode ? 1 : quality / 100,
         onProgress: (value) => setProgress(Math.round(value)),
         useWebWorker: true,
       });
@@ -101,6 +110,7 @@ export function useImageCompression() {
         file: compressedFile,
         sizeSaved,
         savingsPercentage: Math.max(0, (sizeSaved / file.size) * 100),
+        ...(isTargetMode ? { targetSizeKB, targetReached: compressedFile.size <= targetBytes } : {}),
       });
       setProgress(100);
     } catch (compressionError: unknown) {
@@ -109,10 +119,11 @@ export function useImageCompression() {
     } finally {
       setIsCompressing(false);
     }
-  }, [file, format, isCompressing, quality]);
+  }, [compressionMode, file, format, isCompressing, quality, targetSizeKB]);
 
   return {
     clearImage,
+    compressionMode,
     compress,
     error,
     file,
@@ -124,6 +135,9 @@ export function useImageCompression() {
     replaceImage,
     result,
     setFormat,
+    setCompressionMode,
     setQuality,
+    setTargetSizeKB,
+    targetSizeKB,
   };
 }

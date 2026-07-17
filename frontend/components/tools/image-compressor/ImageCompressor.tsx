@@ -9,6 +9,7 @@ import { useImageCompression } from "@/hooks/useImageCompression";
 export default function ImageCompressor() {
   const {
     clearImage,
+    compressionMode,
     compress,
     error,
     file,
@@ -20,7 +21,10 @@ export default function ImageCompressor() {
     replaceImage,
     result,
     setFormat,
+    setCompressionMode,
     setQuality,
+    setTargetSizeKB,
+    targetSizeKB,
   } = useImageCompression();
 
   return (
@@ -36,10 +40,14 @@ export default function ImageCompressor() {
 
             <CompressionSettings
               quality={quality}
+              compressionMode={compressionMode}
+              targetSizeKB={targetSizeKB}
               format={format}
               isCompressing={isCompressing}
               progress={progress}
               onQualityChange={setQuality}
+              onCompressionModeChange={setCompressionMode}
+              onTargetSizeChange={setTargetSizeKB}
               onFormatChange={setFormat}
               onCompress={compress}
             />
