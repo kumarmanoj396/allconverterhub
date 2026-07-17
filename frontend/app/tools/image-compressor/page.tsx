@@ -23,7 +23,7 @@ export default function ImageCompressorPage() {
   return (
     <>
       <ToolStructuredData tool={tool} />
-      <ToolLayout title={tool.title} description={tool.description}>
+      <ToolLayout title={tool.title} toolId={tool.id} description={tool.description}>
         <ImageCompressor />
       </ToolLayout>
     </>

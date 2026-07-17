@@ -56,7 +56,7 @@ export default async function ToolPage({ params }: Props) {
     return (
       <>
         <ToolStructuredData tool={tool} />
-        <ToolLayout title={tool.title} description={tool.description}>
+        <ToolLayout title={tool.title} toolId={tool.id} description={tool.description}>
           <ImageResizer />
         </ToolLayout>
       </>
@@ -67,7 +67,7 @@ export default async function ToolPage({ params }: Props) {
     return (
       <>
         <ToolStructuredData tool={tool} />
-        <ToolLayout title={tool.title} description={tool.description}>
+        <ToolLayout title={tool.title} toolId={tool.id} description={tool.description}>
           <ImageConverter />
         </ToolLayout>
       </>
@@ -78,7 +78,7 @@ export default async function ToolPage({ params }: Props) {
     return (
       <>
         <ToolStructuredData tool={tool} />
-        <ToolLayout title={tool.title} description={tool.description}>
+        <ToolLayout title={tool.title} toolId={tool.id} description={tool.description}>
           <ImageEditor />
         </ToolLayout>
       </>
@@ -89,7 +89,7 @@ export default async function ToolPage({ params }: Props) {
     return (
       <>
         <ToolStructuredData tool={tool} />
-        <ToolLayout title={tool.title} description={tool.description}>
+        <ToolLayout title={tool.title} toolId={tool.id} description={tool.description}>
           <ImageWatermark />
         </ToolLayout>
       </>
@@ -100,7 +100,7 @@ export default async function ToolPage({ params }: Props) {
     return (
       <>
         <ToolStructuredData tool={tool} />
-        <ToolLayout title={tool.title} description={tool.description}>
+        <ToolLayout title={tool.title} toolId={tool.id} description={tool.description}>
           <MetadataRemover />
         </ToolLayout>
       </>
@@ -111,7 +111,7 @@ export default async function ToolPage({ params }: Props) {
     return (
       <>
         <ToolStructuredData tool={tool} />
-        <ToolLayout title={tool.title} description={tool.description}>
+        <ToolLayout title={tool.title} toolId={tool.id} description={tool.description}>
           <BackgroundRemover />
         </ToolLayout>
       </>
@@ -122,7 +122,7 @@ export default async function ToolPage({ params }: Props) {
     return (
       <>
         <ToolStructuredData tool={tool} />
-        <ToolLayout title={tool.title} description={tool.description}>
+        <ToolLayout title={tool.title} toolId={tool.id} description={tool.description}>
           <QrGenerator />
         </ToolLayout>
       </>
@@ -133,7 +133,7 @@ export default async function ToolPage({ params }: Props) {
     return (
       <>
         <ToolStructuredData tool={tool} />
-        <ToolLayout title={tool.title} description={tool.description}>
+        <ToolLayout title={tool.title} toolId={tool.id} description={tool.description}>
           <PdfMerge />
         </ToolLayout>
       </>
@@ -144,7 +144,7 @@ export default async function ToolPage({ params }: Props) {
     return (
       <>
         <ToolStructuredData tool={tool} />
-        <ToolLayout title={tool.title} description={tool.description}>
+        <ToolLayout title={tool.title} toolId={tool.id} description={tool.description}>
           <PdfSplit />
         </ToolLayout>
       </>
@@ -155,7 +155,7 @@ export default async function ToolPage({ params }: Props) {
     return (
       <>
         <ToolStructuredData tool={tool} />
-        <ToolLayout title={tool.title} description={tool.description}>
+        <ToolLayout title={tool.title} toolId={tool.id} description={tool.description}>
           <ImageToPdf />
         </ToolLayout>
       </>
@@ -166,7 +166,7 @@ export default async function ToolPage({ params }: Props) {
     return (
       <>
         <ToolStructuredData tool={tool} />
-        <ToolLayout title={tool.title} description={tool.description}>
+        <ToolLayout title={tool.title} toolId={tool.id} description={tool.description}>
           <PdfToImage />
         </ToolLayout>
       </>
@@ -174,7 +174,7 @@ export default async function ToolPage({ params }: Props) {
   }
 
   return (
-    <ToolLayout title={tool.title} description={tool.description}>
+    <ToolLayout title={tool.title} toolId={tool.id} description={tool.description}>
       <EmptyState message="This tool is coming soon." />
     </ToolLayout>
   );
