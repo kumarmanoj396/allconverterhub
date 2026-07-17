@@ -4,6 +4,7 @@ import { Menu } from "lucide-react";
 import { APP } from "@/lib/constants";
 import { NAVIGATION } from "@/lib/navigation";
 import Button from "@/components/ui/Button";
+import GlobalToolSearch from "@/components/layout/GlobalToolSearch";
 
 export default function Header() {
   return (
@@ -26,6 +27,7 @@ export default function Header() {
         </nav>
 
         <div className="flex items-center gap-3">
+          <GlobalToolSearch />
           <button className="hidden rounded-lg border px-4 py-2 md:block">
             Login
           </button>
