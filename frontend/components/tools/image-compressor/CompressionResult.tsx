@@ -56,6 +56,8 @@ export default function CompressionResult({
         </div>
       </dl>
 
+      {result.targetSizeKB && <p className={`mt-4 rounded-xl px-4 py-3 text-sm font-medium ${result.targetReached ? "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-200" : "bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-200"}`}>{result.targetReached ? `Target reached: ${formatFileSize(result.file.size)} is within ${result.targetSizeKB} KB.` : `Best possible result: ${formatFileSize(result.file.size)} is above the ${result.targetSizeKB} KB target. Try a larger target or a smaller image.`}</p>}
+
       <div className="mt-6 flex flex-col gap-3 sm:flex-row">
         <button onClick={download} className="inline-flex flex-1 items-center justify-center gap-2 rounded-xl bg-emerald-600 px-5 py-3 font-semibold text-white transition hover:bg-emerald-700">
           <Download className="h-5 w-5" />
