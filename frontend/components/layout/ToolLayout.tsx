@@ -2,6 +2,8 @@ import { ReactNode } from "react";
 
 import Header from "@/components/layout/Header";
 import RecentToolTracker from "@/components/layout/RecentToolTracker";
+import ToolSeoContent from "@/components/seo/ToolSeoContent";
+import { getToolById } from "@/lib/tools";
 
 interface ToolLayoutProps {
   title: string;
@@ -16,6 +18,8 @@ export default function ToolLayout({
   description,
   children,
 }: ToolLayoutProps) {
+  const tool = toolId ? getToolById(toolId) : undefined;
+
   return (
     <>
       <Header />
@@ -32,6 +36,7 @@ export default function ToolLayout({
         </div>
 
         {children}
+        {tool && <ToolSeoContent tool={tool} />}
       </main>
     </>
   );
