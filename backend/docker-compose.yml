@@ -1,0 +1,16 @@
+services:
+  mongodb:
+    image: mongo:8
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_DATABASE: allconverterhub
+    volumes:
+      - mongodb-data:/data/db
+  mailpit:
+    image: axllent/mailpit:latest
+    ports:
+      - "1025:1025"
+      - "8025:8025"
+volumes:
+  mongodb-data:
