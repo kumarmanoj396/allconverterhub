@@ -20,9 +20,9 @@ export default function ToolLayout({
     <>
       <Header />
       <RecentToolTracker toolId={toolId} />
-      <main className="mx-auto max-w-7xl px-4 py-10">
-        <div className="mb-10">
-          <h1 className="text-4xl font-bold tracking-tight">
+      <main className="mx-auto max-w-7xl px-4 py-7 sm:px-6 sm:py-10">
+        <div className="mb-7 sm:mb-10">
+          <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">
             {title}
           </h1>
 
