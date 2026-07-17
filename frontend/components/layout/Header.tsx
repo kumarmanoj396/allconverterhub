@@ -18,6 +18,7 @@ export default function Header() {
   const openAuth = (mode: AuthMode) => { setAuthMode(mode); setIsAuthOpen(true); setIsMenuOpen(false); };
 
   return (
+    <>
     <header className="sticky top-0 z-50 border-b border-gray-200 bg-white/90 backdrop-blur dark:border-slate-800 dark:bg-slate-950/90">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6">
         <Link href="/" className="text-xl font-bold text-blue-600 sm:text-2xl">
@@ -47,7 +48,8 @@ export default function Header() {
         </div>
       </div>
       {isMenuOpen && <nav className="border-t border-gray-200 bg-white px-4 py-3 shadow-lg dark:border-slate-800 dark:bg-slate-950 md:hidden" aria-label="Mobile navigation"><div className="mx-auto grid max-w-7xl gap-1"><Link href="/" onClick={() => setIsMenuOpen(false)} className="rounded-lg px-3 py-3 font-semibold text-gray-800 hover:bg-gray-100 dark:text-slate-100 dark:hover:bg-slate-800">Home</Link>{NAVIGATION.filter((item) => item.href !== "/").map((item) => <Link key={item.title} href={item.href} onClick={() => setIsMenuOpen(false)} className="rounded-lg px-3 py-3 font-semibold text-gray-700 hover:bg-gray-100 dark:text-slate-300 dark:hover:bg-slate-800">{item.title}</Link>)}<div className="mt-2 grid grid-cols-2 gap-3 border-t border-gray-200 pt-3 dark:border-slate-800">{email ? <button className="col-span-2 rounded-lg border px-4 py-2 font-semibold text-gray-700 dark:border-slate-700 dark:text-slate-200" onClick={() => { logout(); setIsMenuOpen(false); }} type="button">Logout</button> : <><button className="rounded-lg border px-4 py-2 font-semibold text-gray-700 dark:border-slate-700 dark:text-slate-200" onClick={() => openAuth("login")} type="button">Login</button><Button onClick={() => openAuth("register")} type="button">Sign Up</Button></>}</div></div></nav>}
-      {isAuthOpen && <AuthDialog mode={authMode} onClose={() => setIsAuthOpen(false)} onModeChange={setAuthMode} />}
     </header>
+    {isAuthOpen && <AuthDialog mode={authMode} onClose={() => setIsAuthOpen(false)} onModeChange={setAuthMode} />}
+    </>
   );
 }
