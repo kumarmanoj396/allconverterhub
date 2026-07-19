@@ -4,8 +4,9 @@ import { useEffect, useState, type FormEvent } from "react";
 import { X } from "lucide-react";
 import Button from "@/components/ui/Button";
 import { useAuth } from "@/components/providers/AuthProvider";
+import { requestPasswordReset } from "@/lib/authApi";
 
-export type AuthMode = "login" | "register";
+export type AuthMode = "forgot-password" | "login" | "register";
 
 interface AuthDialogProps {
   mode: AuthMode;
@@ -14,6 +15,7 @@ interface AuthDialogProps {
 }
 
 const labels = {
+  "forgot-password": { action: "Send reset link", prompt: "Remember your password?", switch: "Login", title: "Reset your password" },
   login: { action: "Login", prompt: "New to AllConverterHub?", switch: "Create an account", title: "Welcome back" },
   register: { action: "Create account", prompt: "Already have an account?", switch: "Login", title: "Create your account" },
 };
@@ -50,6 +52,8 @@ export default function AuthDialog({ mode, onClose, onModeChange }: AuthDialogPr
       if (mode === "login") {
         await login(email, password);
         onClose();
+      } else if (mode === "forgot-password") {
+        setNotice((await requestPasswordReset(email)).message);
       } else {
         setNotice(await register(email, password));
       }
@@ -69,12 +73,13 @@ export default function AuthDialog({ mode, onClose, onModeChange }: AuthDialogPr
         </div>
         <form className="mt-6 space-y-4" onSubmit={submit}>
           <label className="grid gap-1.5 text-sm font-medium text-slate-700 dark:text-slate-200">Email<input autoComplete="email" className="rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-slate-950 outline-none ring-blue-500 focus:ring-2 dark:border-slate-600 dark:bg-slate-950 dark:text-white" disabled={submitting} onChange={(event) => setEmail(event.target.value)} required type="email" value={email} /></label>
-          <label className="grid gap-1.5 text-sm font-medium text-slate-700 dark:text-slate-200">Password<input autoComplete={mode === "login" ? "current-password" : "new-password"} className="rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-slate-950 outline-none ring-blue-500 focus:ring-2 dark:border-slate-600 dark:bg-slate-950 dark:text-white" disabled={submitting} minLength={mode === "register" ? 12 : undefined} onChange={(event) => setPassword(event.target.value)} required type="password" value={password} />{mode === "register" && <span className="font-normal text-slate-500">At least 12 characters.</span>}</label>
+          {mode !== "forgot-password" && <label className="grid gap-1.5 text-sm font-medium text-slate-700 dark:text-slate-200">Password<input autoComplete={mode === "login" ? "current-password" : "new-password"} className="rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-slate-950 outline-none ring-blue-500 focus:ring-2 dark:border-slate-600 dark:bg-slate-950 dark:text-white" disabled={submitting} minLength={mode === "register" ? 12 : undefined} onChange={(event) => setPassword(event.target.value)} required type="password" value={password} />{mode === "register" && <span className="font-normal text-slate-500">At least 12 characters.</span>}</label>}
           {error && <p aria-live="polite" className="rounded-lg bg-red-50 p-3 text-sm text-red-700 dark:bg-red-950/40 dark:text-red-200">{error}</p>}
           {notice && <p aria-live="polite" className="rounded-lg bg-green-50 p-3 text-sm text-green-700 dark:bg-green-950/40 dark:text-green-200">{notice}</p>}
           <Button className="w-full" disabled={submitting} type="submit">{submitting ? "Please wait…" : copy.action}</Button>
         </form>
-        <p className="mt-5 text-center text-sm text-slate-600 dark:text-slate-300">{copy.prompt} <button className="font-semibold text-blue-600 hover:underline dark:text-blue-400" onClick={() => { setError(""); setNotice(""); onModeChange(mode === "login" ? "register" : "login"); }} type="button">{copy.switch}</button></p>
+        {mode === "login" && <button className="mt-4 w-full text-center text-sm font-semibold text-blue-600 hover:underline dark:text-blue-400" onClick={() => { setError(""); setNotice(""); onModeChange("forgot-password"); }} type="button">Forgot password?</button>}
+        <p className="mt-5 text-center text-sm text-slate-600 dark:text-slate-300">{copy.prompt} <button className="font-semibold text-blue-600 hover:underline dark:text-blue-400" onClick={() => { setError(""); setNotice(""); onModeChange(mode === "register" ? "login" : mode === "login" ? "register" : "login"); }} type="button">{copy.switch}</button></p>
       </section>
     </div>
   );

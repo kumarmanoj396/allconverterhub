@@ -68,3 +68,11 @@ export async function loginAccount(email: string, password: string) {
 export async function verifyEmail(token: string) {
   return get<{ message: string }>(`/auth/verify-email?token=${encodeURIComponent(token)}`);
 }
+
+export async function requestPasswordReset(email: string) {
+  return post<{ message: string }>("/auth/forgot-password", { email });
+}
+
+export async function resetPassword(token: string, password: string) {
+  return post<{ message: string }>("/auth/reset-password", { token, password });
+}
