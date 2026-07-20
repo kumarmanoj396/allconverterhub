@@ -23,6 +23,7 @@ app:
     access-token-minutes: ${JWT_ACCESS_TOKEN_MINUTES:15}
     refresh-token-days: ${JWT_REFRESH_TOKEN_DAYS:30}
 server:
+  port: ${PORT:8080}
   servlet:
     context-path: /api/v1
 springdoc:
