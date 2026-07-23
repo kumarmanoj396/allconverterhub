@@ -27,7 +27,6 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-validation")
     implementation("org.springframework.boot:spring-boot-starter-security")
     implementation("org.springframework.boot:spring-boot-starter-data-mongodb")
-    implementation("org.springframework.boot:spring-boot-starter-mail")
     implementation("io.mongock:mongock-springboot")
     implementation("io.mongock:mongodb-springdata-v3-driver")
     implementation("io.jsonwebtoken:jjwt-api:0.13.0")
