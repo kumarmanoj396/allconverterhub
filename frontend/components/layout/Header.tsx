@@ -14,9 +14,9 @@ export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [authMode, setAuthMode] = useState<AuthMode>("login");
   const [isAuthOpen, setIsAuthOpen] = useState(false);
-  const { email, logout } = useAuth();
+  const { email, logout, user } = useAuth();
   const openAuth = (mode: AuthMode) => { setAuthMode(mode); setIsAuthOpen(true); setIsMenuOpen(false); };
-  const displayName = email ? getDisplayName(email) : null;
+  const displayName = user ? getDisplayName(user.firstName, user.lastName, user.email) : null;
 
   return (
     <>
@@ -84,7 +84,9 @@ export default function Header() {
   );
 }
 
-function getDisplayName(email: string) {
+function getDisplayName(firstName: string, lastName: string, email: string) {
+  const profileName = [firstName, lastName].filter(Boolean).join(" ").trim();
+  if (profileName) return profileName;
   const localPart = email.split("@")[0] ?? "Account";
   const words = localPart
     .replace(/[._-]+/g, " ")

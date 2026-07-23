@@ -17,54 +17,14 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-@RestController
-@RequestMapping("/auth")
+@RestController @RequestMapping("/auth")
 public class AuthController {
   private final AuthService authService;
-
-  public AuthController(AuthService authService) {
-    this.authService = authService;
-  }
-
-  @PostMapping("/register")
-  @ResponseStatus(HttpStatus.ACCEPTED)
- 
-  public MessageResponse register(@Valid @RequestBody RegisterRequest request) {
-    authService.register(request.email(), request.password());
-    return new MessageResponse("Registration received. Check your email to verify your account.");
-  }
-
-  @PostMapping("/login")
- 
-  public AuthResponse login(@Valid @RequestBody LoginRequest request) {
-    return authService.login(request.email(), request.password());
-  }
-
-  @PostMapping("/refresh")
- 
-  public AuthResponse refresh(@Valid @RequestBody RefreshRequest request) {
-    return authService.refresh(request.refreshToken());
-  }
-
-  @GetMapping("/verify-email")
- 
-  public MessageResponse verifyEmail(@RequestParam String token) {
-    authService.verifyEmail(token);
-    return new MessageResponse("Email verified. You can now sign in.");
-  }
-
-  @PostMapping("/forgot-password")
-  @ResponseStatus(HttpStatus.ACCEPTED)
- 
-  public MessageResponse forgotPassword(@Valid @RequestBody ForgotPasswordRequest request) {
-    authService.requestPasswordReset(request.email());
-    return new MessageResponse("If an account exists, a password reset email has been sent.");
-  }
-
-  @PostMapping("/reset-password")
- 
-  public MessageResponse resetPassword(@Valid @RequestBody ResetPasswordRequest request) {
-    authService.resetPassword(request.token(), request.password());
-    return new MessageResponse("Password updated. You can now sign in.");
-  }
+  public AuthController(AuthService authService) { this.authService = authService; }
+  @PostMapping("/register") @ResponseStatus(HttpStatus.ACCEPTED) public MessageResponse register(@Valid @RequestBody RegisterRequest request) { authService.register(request.firstName(), request.lastName(), request.email(), request.password()); return new MessageResponse("Registration received. Check your email to verify your account."); }
+  @PostMapping("/login") public AuthResponse login(@Valid @RequestBody LoginRequest request) { return authService.login(request.email(), request.password()); }
+  @PostMapping("/refresh") public AuthResponse refresh(@Valid @RequestBody RefreshRequest request) { return authService.refresh(request.refreshToken()); }
+  @GetMapping("/verify-email") public MessageResponse verifyEmail(@RequestParam String token) { authService.verifyEmail(token); return new MessageResponse("Email verified. You can now sign in."); }
+  @PostMapping("/forgot-password") @ResponseStatus(HttpStatus.ACCEPTED) public MessageResponse forgotPassword(@Valid @RequestBody ForgotPasswordRequest request) { authService.requestPasswordReset(request.email()); return new MessageResponse("If an account exists, a password reset email has been sent."); }
+  @PostMapping("/reset-password") public MessageResponse resetPassword(@Valid @RequestBody ResetPasswordRequest request) { authService.resetPassword(request.token(), request.password()); return new MessageResponse("Password updated. You can now sign in."); }
 }

@@ -23,6 +23,8 @@ const labels = {
 export default function AuthDialog({ mode, onClose, onModeChange }: AuthDialogProps) {
   const { login, register } = useAuth();
   const [email, setEmail] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
   const [password, setPassword] = useState("");
@@ -47,6 +49,11 @@ export default function AuthDialog({ mode, onClose, onModeChange }: AuthDialogPr
       return;
     }
 
+    if (mode === "register" && (!firstName.trim() || !lastName.trim())) {
+      setError("Enter your first and last name.");
+      return;
+    }
+
     setSubmitting(true);
     try {
       if (mode === "login") {
@@ -55,7 +62,7 @@ export default function AuthDialog({ mode, onClose, onModeChange }: AuthDialogPr
       } else if (mode === "forgot-password") {
         setNotice((await requestPasswordReset(email)).message);
       } else {
-        setNotice(await register(email, password));
+        setNotice(await register(firstName, lastName, email, password));
       }
     } catch (reason) {
       setError(reason instanceof Error ? reason.message : "Unable to complete your request.");
@@ -72,6 +79,7 @@ export default function AuthDialog({ mode, onClose, onModeChange }: AuthDialogPr
           <button aria-label="Close account dialog" className="rounded-lg p-2 text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800" disabled={submitting} onClick={onClose} type="button"><X size={20} /></button>
         </div>
         <form className="mt-6 space-y-4" onSubmit={submit}>
+          {mode === "register" && <div className="grid gap-4 sm:grid-cols-2"><label className="grid gap-1.5 text-sm font-medium text-slate-700 dark:text-slate-200">First name<input autoComplete="given-name" className="rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-slate-950 outline-none ring-blue-500 focus:ring-2 dark:border-slate-600 dark:bg-slate-950 dark:text-white" disabled={submitting} maxLength={60} onChange={(event) => setFirstName(event.target.value)} required value={firstName} /></label><label className="grid gap-1.5 text-sm font-medium text-slate-700 dark:text-slate-200">Last name<input autoComplete="family-name" className="rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-slate-950 outline-none ring-blue-500 focus:ring-2 dark:border-slate-600 dark:bg-slate-950 dark:text-white" disabled={submitting} maxLength={60} onChange={(event) => setLastName(event.target.value)} required value={lastName} /></label></div>}
           <label className="grid gap-1.5 text-sm font-medium text-slate-700 dark:text-slate-200">Email<input autoComplete="email" className="rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-slate-950 outline-none ring-blue-500 focus:ring-2 dark:border-slate-600 dark:bg-slate-950 dark:text-white" disabled={submitting} onChange={(event) => setEmail(event.target.value)} required type="email" value={email} /></label>
           {mode !== "forgot-password" && <label className="grid gap-1.5 text-sm font-medium text-slate-700 dark:text-slate-200">Password<input autoComplete={mode === "login" ? "current-password" : "new-password"} className="rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-slate-950 outline-none ring-blue-500 focus:ring-2 dark:border-slate-600 dark:bg-slate-950 dark:text-white" disabled={submitting} minLength={mode === "register" ? 12 : undefined} onChange={(event) => setPassword(event.target.value)} required type="password" value={password} />{mode === "register" && <span className="font-normal text-slate-500">At least 12 characters.</span>}</label>}
           {error && <p aria-live="polite" className="rounded-lg bg-red-50 p-3 text-sm text-red-700 dark:bg-red-950/40 dark:text-red-200">{error}</p>}
