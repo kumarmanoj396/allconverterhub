@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import { Menu, X } from "lucide-react";
+import { LogOut, Menu, UserRound, X } from "lucide-react";
 import { useState } from "react";
 import { APP } from "@/lib/constants";
 import { NAVIGATION } from "@/lib/navigation";
