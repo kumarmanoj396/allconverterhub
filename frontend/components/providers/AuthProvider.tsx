@@ -1,39 +1,75 @@
 "use client";
 
-import { createContext, useContext, useMemo, useState, type ReactNode } from "react";
-import { loginAccount, registerAccount, type AuthSession } from "@/lib/authApi";
+import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
+import { clearSession, getProfile, getStoredSession, loginAccount, registerAccount, saveSession, type AuthSession, type UserProfile } from "@/lib/authApi";
+import { hydrateFavoriteTools } from "@/lib/favorites";
 
 interface AuthContextValue {
   email: string | null;
+  isLoading: boolean;
   login: (email: string, password: string) => Promise<void>;
   logout: () => void;
-  register: (email: string, password: string) => Promise<string>;
+  refreshProfile: () => Promise<UserProfile | null>;
+  register: (firstName: string, lastName: string, email: string, password: string) => Promise<string>;
   session: AuthSession | null;
+  user: UserProfile | null;
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null);
 
 export default function AuthProvider({ children }: { children: ReactNode }) {
-  const [email, setEmail] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const [session, setSession] = useState<AuthSession | null>(null);
+  const [user, setUser] = useState<UserProfile | null>(null);
+
+  const logout = useCallback(() => { clearSession(); setSession(null); setUser(null); }, []);
+  const loadProfile = useCallback(async (activeSession: AuthSession) => {
+    const profile = await getProfile(activeSession);
+    setSession(activeSession);
+    setUser(profile);
+    try {
+      await hydrateFavoriteTools(activeSession);
+    } catch {
+      // A preferences sync failure must not invalidate an otherwise valid session.
+    }
+    return profile;
+  }, []);
+
+  useEffect(() => {
+    async function restoreSession() {
+      const saved = getStoredSession();
+      if (saved) {
+        try {
+          await loadProfile(saved);
+        } catch {
+          logout();
+        }
+      }
+      setIsLoading(false);
+    }
+    void restoreSession();
+  }, [loadProfile, logout]);
 
   const value = useMemo<AuthContextValue>(() => ({
-    email,
+    email: user?.email ?? null,
+    isLoading,
     session,
-    async login(nextEmail, password) {
-      const nextSession = await loginAccount(nextEmail, password);
-      setEmail(nextEmail);
-      setSession(nextSession);
+    user,
+    async login(email, password) {
+      const nextSession = await loginAccount(email, password);
+      saveSession(nextSession);
+      await loadProfile(nextSession);
     },
-    logout() {
-      setEmail(null);
-      setSession(null);
+    logout,
+    async refreshProfile() {
+      if (!session) return null;
+      try { return await loadProfile(session); } catch { logout(); return null; }
     },
-    async register(nextEmail, password) {
-      const response = await registerAccount(nextEmail, password);
+    async register(firstName, lastName, email, password) {
+      const response = await registerAccount(firstName, lastName, email, password);
       return response.message;
     },
-  }), [email, session]);
+  }), [isLoading, loadProfile, logout, session, user]);
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

@@ -1,3 +1,5 @@
+import { getPersistentFavoriteToolIds, getStoredSession, removePersistentFavorite, savePersistentFavorite, type AuthSession } from "@/lib/authApi";
+
 export const FAVORITES_CHANGED_EVENT = "allconverterhub:favorites-changed";
 const FAVORITES_KEY = "allconverterhub:favorite-tools";
 
@@ -30,11 +32,24 @@ export function toggleFavoriteTool(toolId: string) {
   const currentIds = getFavoriteToolIds();
   const nextIds = currentIds.includes(toolId) ? currentIds.filter((id) => id !== toolId) : [toolId, ...currentIds];
   saveFavoriteToolIds(nextIds);
+  const session = getStoredSession();
+  if (session) {
+    const persist = nextIds.includes(toolId) ? savePersistentFavorite(session, toolId) : removePersistentFavorite(session, toolId);
+    void persist.catch(() => undefined);
+  }
   return nextIds.includes(toolId);
+}
+
+export async function hydrateFavoriteTools(session: AuthSession) {
+  const localIds = getFavoriteToolIds();
+  await Promise.all(localIds.map((toolId) => savePersistentFavorite(session, toolId)));
+  saveFavoriteToolIds(await getPersistentFavoriteToolIds(session));
 }
 
 export function clearFavoriteTools() {
   if (!isBrowser()) return;
+  const session = getStoredSession();
+  if (session) void Promise.all(getFavoriteToolIds().map((toolId) => removePersistentFavorite(session, toolId))).catch(() => undefined);
   try {
     window.localStorage.removeItem(FAVORITES_KEY);
     window.dispatchEvent(new Event(FAVORITES_CHANGED_EVENT));
