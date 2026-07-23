@@ -8,24 +8,19 @@ services:
     dockerContext: ./backend
     healthCheckPath: /api/v1/auth/health
     autoDeployTrigger: commit
+
     envVars:
       - key: MONGODB_URI
         sync: false
+
       - key: FRONTEND_URL
         value: https://allconverterhub.vercel.app
+
       - key: JWT_SECRET
         sync: false
-      - key: MAIL_HOST
-        value: smtp.resend.com
-      - key: MAIL_PORT
-        value: "587"
-      - key: MAIL_USERNAME
-        value: resend
-      - key: MAIL_PASSWORD
+
+      - key: RESEND_API_KEY
         sync: false
-      - key: MAIL_SMTP_AUTH
-        value: "true"
-      - key: MAIL_SMTP_STARTTLS
-        value: "true"
+
       - key: MAIL_FROM
         sync: false
